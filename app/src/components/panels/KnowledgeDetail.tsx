@@ -8,6 +8,7 @@ import VennDiagram from '@/components/graph/VennDiagram';
 import DistributionChart from '@/components/graph/DistributionChart';
 import { MeanInequality, DerivativeTangent } from '@/components/graph/InequalityVisual';
 import TrigIdentityVisual from '@/components/graph/TrigIdentityVisual';
+import SimpleHarmonicMotion from '@/components/graph/SimpleHarmonicMotion';
 import { BookOpen, Lightbulb, Sigma, Wrench, Eye } from 'lucide-react';
 
 interface KnowledgeDetailProps {
@@ -42,6 +43,8 @@ const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
         return <DerivativeTangent />;
       case 'trig-identity':
         return <TrigIdentityVisual />;
+      case 'simple-harmonic':
+        return <SimpleHarmonicMotion />;
       case 'number-line':
         return null; // 使用已有的 quadratic 图形
       default:
@@ -124,21 +127,37 @@ const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
         </section>
       )}
 
-      {/* 方法 / 技巧 */}
+      {/* 方法 / 技巧 — 视觉化步骤流程 */}
       {content.methods && content.methods.length > 0 && (
         <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h3 className="flex items-center gap-2 font-semibold text-gray-800 mb-3">
+          <h3 className="flex items-center gap-2 font-semibold text-gray-800 mb-4">
             <Wrench className="w-4 h-4 text-green-600" />
             方法技巧
           </h3>
-          <ul className="space-y-2">
+          <div className="space-y-0">
             {content.methods.map((method, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm text-gray-700 leading-relaxed">
-                <span className="flex-shrink-0 mt-0.5 text-green-500 font-bold">→</span>
-                <span>{method}</span>
-              </li>
+              <div key={idx} className="flex gap-3 group">
+                {/* Numbered circle + connector */}
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm transition-transform group-hover:scale-110"
+                    style={{
+                      backgroundColor: idx === 0 ? '#10b981' : idx === content.methods!.length - 1 ? '#6366f1' : `hsl(${150 + idx * 25}, 70%, 50%)`,
+                    }}
+                  >
+                    {idx + 1}
+                  </div>
+                  {idx < content.methods!.length - 1 && (
+                    <div className="w-0.5 h-full min-h-[20px] bg-gradient-to-b from-green-300 to-indigo-300 mt-1" />
+                  )}
+                </div>
+                {/* Content card */}
+                <div className="flex-1 mb-3 px-3 py-2.5 rounded-lg bg-gradient-to-r from-green-50/80 to-transparent border border-green-100 transition-colors group-hover:from-green-100/60">
+                  <p className="text-sm text-gray-700 leading-relaxed">{method}</p>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
     </div>

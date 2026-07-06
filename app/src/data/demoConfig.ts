@@ -14,6 +14,7 @@ export type DemoType =
   | 'conic-overview'    // 圆锥曲线对比
   | 'derivative-tangent'// 导数切线演示
   | 'trig-identity'     // 三角恒等变换
+  | 'simple-harmonic'   // 简谐运动场景模拟
   | 'sequence-visual';  // 数列增长对比
 
 // 知识点到可视化类型的映射
@@ -49,6 +50,9 @@ export const nodeDemos: Record<string, DemoType> = {
 
   // 三角恒等变换（1个知识点）
   '22': 'trig-identity',
+
+  // 三角函数应用（1个知识点）
+  '24': 'simple-harmonic',
 
   // 数列对比（已在 FunctionCanvas 中有，但可增强）
   // '45': 'sequence-visual',
