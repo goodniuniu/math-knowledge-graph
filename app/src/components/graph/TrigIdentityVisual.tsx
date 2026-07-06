@@ -35,16 +35,19 @@ const TrigIdentityVisual: React.FC = () => {
     ctx.fillRect(0, 0, width, height);
 
     if (mode === 'sum') {
+      // eslint-disable-next-line react-hooks/immutability
       drawSumAngle(ctx);
     } else if (mode === 'double') {
+      // eslint-disable-next-line react-hooks/immutability
       drawDoubleAngle(ctx);
     } else {
+      // eslint-disable-next-line react-hooks/immutability
       drawAuxiliary(ctx);
     }
   }, [mode, alpha, beta, aCoef, bCoef]);
 
   // 和差角公式可视化：单位圆 + 角度分解
-  const drawSumAngle = (ctx: CanvasRenderingContext2D) => {
+  function drawSumAngle(ctx: CanvasRenderingContext2D) {
     const cx = width / 2;
     const cy = height / 2;
     const r = 130;
@@ -162,7 +165,7 @@ const TrigIdentityVisual: React.FC = () => {
   };
 
   // 二倍角公式可视化：曲线对比
-  const drawDoubleAngle = (ctx: CanvasRenderingContext2D) => {
+  function drawDoubleAngle(ctx: CanvasRenderingContext2D) {
     const padding = { top: 60, right: 20, bottom: 40, left: 50 };
     const plotW = width - padding.left - padding.right;
     const plotH = height - padding.top - padding.bottom;
@@ -277,7 +280,7 @@ const TrigIdentityVisual: React.FC = () => {
   };
 
   // 辅助角公式可视化
-  const drawAuxiliary = (ctx: CanvasRenderingContext2D) => {
+  function drawAuxiliary(ctx: CanvasRenderingContext2D) {
     const padding = { top: 60, right: 20, bottom: 40, left: 50 };
     const plotW = width - padding.left - padding.right;
     const plotH = height - padding.top - padding.bottom;

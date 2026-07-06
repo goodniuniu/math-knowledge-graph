@@ -42,6 +42,7 @@ const SimpleHarmonicMotion: React.FC = () => {
         ctx.scale(dpr, dpr);
       }
 
+      // eslint-disable-next-line react-hooks/immutability
       draw(ctx, timeRef.current);
       animRef.current = requestAnimationFrame(animate);
     };
@@ -58,7 +59,7 @@ const SimpleHarmonicMotion: React.FC = () => {
     timeRef.current = 0;
   }, [amplitude, omega, phi, scenario]);
 
-  const draw = (ctx: CanvasRenderingContext2D, t: number) => {
+  function draw(ctx: CanvasRenderingContext2D, t: number) {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, width, height);
 
@@ -80,7 +81,7 @@ const SimpleHarmonicMotion: React.FC = () => {
     drawCurve(ctx, sceneW, width - sceneW, height, t, y);
   };
 
-  const drawScene = (ctx: CanvasRenderingContext2D, w: number, h: number, y: number, t: number) => {
+  function drawScene(ctx: CanvasRenderingContext2D, w: number, h: number, y: number, t: number) {
     const cx = w / 2;
     const cy = h / 2;
     const scale = 35;
@@ -298,7 +299,7 @@ const SimpleHarmonicMotion: React.FC = () => {
     ctx.fillText(`x = ${y.toFixed(2)} ${unit}`, 15, 38);
   };
 
-  const drawCurve = (ctx: CanvasRenderingContext2D, x0: number, w: number, h: number, t: number, currentY: number) => {
+  function drawCurve(ctx: CanvasRenderingContext2D, x0: number, w: number, h: number, t: number, currentY: number) {
     const padding = { top: 40, right: 15, bottom: 30, left: 35 };
     const plotW = w - padding.left - padding.right;
     const plotH = h - padding.top - padding.bottom;

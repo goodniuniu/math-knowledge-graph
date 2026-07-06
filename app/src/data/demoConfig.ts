@@ -2,20 +2,35 @@
 // 将知识点 ID 映射到对应的可视化组件类型
 
 export type DemoType =
-  | 'vector-ops'        // 向量运算（加法、减法、数量积）
+  | 'vector-ops'        // 向量运算
   | 'vector-coords'     // 向量坐标表示
-  | 'vector-triangle'   // 向量与三角形（正弦/余弦定理）
+  | 'vector-triangle'   // 向量与三角形
   | 'venn-sets'         // 集合运算韦恩图
   | 'venn-relations'    // 集合间关系
-  | 'dist-normal'       // 正态分布曲线
+  | 'dist-normal'       // 正态分布
   | 'dist-binomial'     // 二项分布
-  | 'inequality-mean'   // 基本不等式可视化
+  | 'inequality-mean'   // 基本不等式
   | 'number-line'       // 数轴表示
-  | 'conic-overview'    // 圆锥曲线对比
-  | 'derivative-tangent'// 导数切线演示
+  | 'derivative-tangent'// 导数切线
   | 'trig-identity'     // 三角恒等变换
-  | 'simple-harmonic'   // 简谐运动场景模拟
-  | 'sequence-visual';  // 数列增长对比
+  | 'simple-harmonic'   // 简谐运动场景
+  | 'complex-basic'     // 复数平面
+  | 'complex-trig'      // 复数三角形式
+  | 'geometry-position' // 立体几何位置关系
+  | 'geometry-parallel' // 线面平行
+  | 'geometry-perp'     // 线面垂直
+  | 'stats-histogram'   // 频率分布直方图
+  | 'stats-scatter'     // 散点图与相关
+  | 'stats-regression'  // 回归分析
+  | 'stats-contingency' // 列联表与卡方
+  | 'coord-line'        // 直线交点
+  | 'coord-circle'      // 圆的方程
+  | 'coord-angle'       // 角度与弧度
+  | 'pascal'            // 杨辉三角
+  | 'combination'       // 排列组合
+  | 'logic-condition'   // 充分必要条件
+  | 'logic-quantifier'  // 全称存在量词
+  | 'logic-inequality'; // 不等式性质
 
 // 知识点到可视化类型的映射
 export const nodeDemos: Record<string, DemoType> = {
@@ -57,6 +72,35 @@ export const nodeDemos: Record<string, DemoType> = {
   // 数列对比（已在 FunctionCanvas 中有，但可增强）
   // '45': 'sequence-visual',
   // '46': 'sequence-visual',
+
+  // 复数（2个知识点）
+  '29': 'complex-basic',
+  '30': 'complex-trig',
+
+  // 立体几何（3个知识点）
+  '31': 'geometry-position',
+  '32': 'geometry-parallel',
+  '33': 'geometry-perp',
+
+  // 统计（4个知识点）
+  '34': 'stats-histogram',
+  '55': 'stats-scatter',
+  '56': 'stats-regression',
+  '57': 'stats-contingency',
+
+  // 坐标几何与角度（3个知识点）
+  '40': 'coord-line',
+  '41': 'coord-circle',
+  '18': 'coord-angle',
+
+  // 排列组合与二项式（2个知识点）
+  '49': 'pascal',
+  '50': 'combination',
+
+  // 逻辑与不等式（3个知识点）
+  '04': 'logic-condition',
+  '05': 'logic-quantifier',
+  '06': 'logic-inequality',
 };
 
 export function getNodeDemo(nodeId: string): DemoType | undefined {

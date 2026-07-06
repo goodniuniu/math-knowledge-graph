@@ -9,6 +9,7 @@ import DistributionChart from '@/components/graph/DistributionChart';
 import { MeanInequality, DerivativeTangent } from '@/components/graph/InequalityVisual';
 import TrigIdentityVisual from '@/components/graph/TrigIdentityVisual';
 import SimpleHarmonicMotion from '@/components/graph/SimpleHarmonicMotion';
+import { ComplexPlane, Geometry3D, StatsVisual, CoordinateGraph, PascalTriangle, LogicVisual } from '@/components/graph/ExtraVisuals';
 import { BookOpen, Lightbulb, Sigma, Wrench, Eye } from 'lucide-react';
 
 interface KnowledgeDetailProps {
@@ -45,6 +46,46 @@ const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
         return <TrigIdentityVisual />;
       case 'simple-harmonic':
         return <SimpleHarmonicMotion />;
+      // 复数
+      case 'complex-basic':
+        return <ComplexPlane mode="basic" />;
+      case 'complex-trig':
+        return <ComplexPlane mode="trig" />;
+      // 立体几何
+      case 'geometry-position':
+        return <Geometry3D mode="position" />;
+      case 'geometry-parallel':
+        return <Geometry3D mode="parallel" />;
+      case 'geometry-perp':
+        return <Geometry3D mode="perpendicular" />;
+      // 统计
+      case 'stats-histogram':
+        return <StatsVisual mode="histogram" />;
+      case 'stats-scatter':
+        return <StatsVisual mode="scatter" />;
+      case 'stats-regression':
+        return <StatsVisual mode="regression" />;
+      case 'stats-contingency':
+        return <StatsVisual mode="contingency" />;
+      // 坐标几何
+      case 'coord-line':
+        return <CoordinateGraph mode="line" />;
+      case 'coord-circle':
+        return <CoordinateGraph mode="circle" />;
+      case 'coord-angle':
+        return <CoordinateGraph mode="angle" />;
+      // 排列组合
+      case 'pascal':
+        return <PascalTriangle mode="pascal" />;
+      case 'combination':
+        return <PascalTriangle mode="combination" />;
+      // 逻辑
+      case 'logic-condition':
+        return <LogicVisual mode="condition" />;
+      case 'logic-quantifier':
+        return <LogicVisual mode="quantifier" />;
+      case 'logic-inequality':
+        return <LogicVisual mode="inequality" />;
       case 'number-line':
         return null; // 使用已有的 quadratic 图形
       default:
