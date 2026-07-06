@@ -1,8 +1,13 @@
 import React from 'react';
 import { nodeContent } from '@/data/nodeContent';
+import { getNodeDemo } from '@/data/demoConfig';
 import type { KnowledgeNode } from '@/data/knowledgeData';
 import Math from '@/components/Math';
-import { BookOpen, Lightbulb, Sigma, Wrench } from 'lucide-react';
+import VectorCanvas from '@/components/graph/VectorCanvas';
+import VennDiagram from '@/components/graph/VennDiagram';
+import DistributionChart from '@/components/graph/DistributionChart';
+import { MeanInequality, DerivativeTangent } from '@/components/graph/InequalityVisual';
+import { BookOpen, Lightbulb, Sigma, Wrench, Eye } from 'lucide-react';
 
 interface KnowledgeDetailProps {
   node: KnowledgeNode;
@@ -10,6 +15,36 @@ interface KnowledgeDetailProps {
 
 const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
   const content = nodeContent[node.id];
+  const demoType = getNodeDemo(node.id);
+
+  // Render the appropriate visual demo component
+  const renderDemo = () => {
+    if (!demoType) return null;
+    switch (demoType) {
+      case 'vector-ops':
+        return <VectorCanvas mode="ops" />;
+      case 'vector-coords':
+        return <VectorCanvas mode="coords" />;
+      case 'vector-triangle':
+        return <VectorCanvas mode="triangle" />;
+      case 'venn-sets':
+        return <VennDiagram variant="sets" />;
+      case 'venn-relations':
+        return <VennDiagram variant="relations" />;
+      case 'dist-normal':
+        return <DistributionChart type="normal" />;
+      case 'dist-binomial':
+        return <DistributionChart type="binomial" />;
+      case 'inequality-mean':
+        return <MeanInequality />;
+      case 'derivative-tangent':
+        return <DerivativeTangent />;
+      case 'number-line':
+        return null; // 使用已有的 quadratic 图形
+      default:
+        return null;
+    }
+  };
 
   if (!content) {
     return (
@@ -22,6 +57,18 @@ const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
 
   return (
     <div className="space-y-4">
+      {/* 交互可视化演示 */}
+      {demoType && renderDemo() && (
+        <section>
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <Eye className="w-4 h-4 text-purple-600" />
+            <h3 className="font-semibold text-gray-800 text-sm">形象化演示</h3>
+            <span className="text-xs text-gray-400">拖动滑块或点击按钮进行交互</span>
+          </div>
+          {renderDemo()}
+        </section>
+      )}
+
       {/* 定义 / 概念 */}
       <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
         <h3 className="flex items-center gap-2 font-semibold text-gray-800 mb-3">
