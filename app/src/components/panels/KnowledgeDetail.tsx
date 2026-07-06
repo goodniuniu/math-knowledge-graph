@@ -7,6 +7,7 @@ import VectorCanvas from '@/components/graph/VectorCanvas';
 import VennDiagram from '@/components/graph/VennDiagram';
 import DistributionChart from '@/components/graph/DistributionChart';
 import { MeanInequality, DerivativeTangent } from '@/components/graph/InequalityVisual';
+import TrigIdentityVisual from '@/components/graph/TrigIdentityVisual';
 import { BookOpen, Lightbulb, Sigma, Wrench, Eye } from 'lucide-react';
 
 interface KnowledgeDetailProps {
@@ -39,6 +40,8 @@ const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
         return <MeanInequality />;
       case 'derivative-tangent':
         return <DerivativeTangent />;
+      case 'trig-identity':
+        return <TrigIdentityVisual />;
       case 'number-line':
         return null; // 使用已有的 quadratic 图形
       default:

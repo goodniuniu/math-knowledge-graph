@@ -13,6 +13,7 @@ export type DemoType =
   | 'number-line'       // 数轴表示
   | 'conic-overview'    // 圆锥曲线对比
   | 'derivative-tangent'// 导数切线演示
+  | 'trig-identity'     // 三角恒等变换
   | 'sequence-visual';  // 数列增长对比
 
 // 知识点到可视化类型的映射
@@ -45,6 +46,9 @@ export const nodeDemos: Record<string, DemoType> = {
 
   // 导数（1个知识点）
   '48': 'derivative-tangent',
+
+  // 三角恒等变换（1个知识点）
+  '22': 'trig-identity',
 
   // 数列对比（已在 FunctionCanvas 中有，但可增强）
   // '45': 'sequence-visual',
