@@ -15,18 +15,25 @@ const DistributionChart: React.FC<DistributionChartProps> = ({ type }) => {
   const [n, setN] = useState(10);       // 二项分布试验次数
   const [p, setP] = useState(0.5);      // 二项分布成功概率
 
+  // Initialize canvas dimensions once
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
     const dpr = window.devicePixelRatio || 1;
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
-    ctx.scale(dpr, dpr);
+    const ctx = canvas.getContext('2d');
+    if (ctx) ctx.scale(dpr, dpr);
+  }, []);
+
+  // Redraw on parameter change
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, width, height);
