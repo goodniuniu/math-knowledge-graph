@@ -105,6 +105,36 @@ export const FunctionMachine: React.FC = () => {
         </div>
       )}
       <Scenario>函数就像一台机器：一个输入对应唯一一个输出。试试不同类型的函数，观察输入和输出的关系！</Scenario>
+
+      {/* 函数三要素含义图解 */}
+      <div className="mt-2">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🧩 函数三要素含义图解</div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-center">
+            <div className="text-lg">📥</div>
+            <div className="text-xs font-bold text-blue-600 dark:text-blue-400">定义域</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">所有合法输入 x 的集合</div>
+            <div className="text-[10px] font-mono text-blue-700 dark:text-blue-300 mt-0.5">
+              {fnType === 'reciprocal' ? 'x ≠ 0' : 'x ∈ ℝ'}
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 text-center">
+            <div className="text-lg">⚙️</div>
+            <div className="text-xs font-bold text-purple-600 dark:text-purple-400">对应法则</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">x → y 的变换规则</div>
+            <div className="text-[10px] font-mono text-purple-700 dark:text-purple-300 mt-0.5">{fnLabel}</div>
+          </div>
+          <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-center">
+            <div className="text-lg">📤</div>
+            <div className="text-xs font-bold text-green-600 dark:text-green-400">值域</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">所有可能输出 y 的集合</div>
+            <div className="text-[10px] font-mono text-green-700 dark:text-green-300 mt-0.5">
+              {fnType === 'square' ? 'y ≥ 0' : fnType === 'abs' ? 'y ≥ 0' : 'y ∈ ℝ'}
+            </div>
+          </div>
+        </div>
+      </div>
+      <Insight>判断两个函数是否相同，必须定义域、对应法则都相同（值域自然也相同）。三个条件缺一不可！</Insight>
     </div>
   );
 };
@@ -211,6 +241,37 @@ export const FunctionProperties: React.FC = () => {
 
       {(isEven || isOdd) && <Insight>{isEven ? '偶函数关于 y 轴对称——看！虚线镜像与实线完全重合。' : '奇函数关于原点对称——旋转 180° 后曲线不变。'}</Insight>}
       <Scenario>调整参数 a、b、c，观察函数性质如何变化。橙色点是探测点，粉色虚线是对称性检测线。</Scenario>
+
+      {/* 四大性质含义图解 */}
+      <div className="mt-2">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🔍 四大性质实时检测</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className={`p-2 rounded-lg border text-center ${isMonotonic ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'}`}>
+            <div className="text-xs font-bold text-gray-700 dark:text-gray-300">📈 单调性</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              {isMonotonic ? (increasing ? 'x增大→y增大，一直往上走' : 'x增大→y减小，一直往下走') : '有增有减，存在转折点'}
+            </div>
+          </div>
+          <div className={`p-2 rounded-lg border text-center ${isEven ? 'bg-pink-50 dark:bg-pink-900/20 border-pink-300 dark:border-pink-700' : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'}`}>
+            <div className="text-xs font-bold text-gray-700 dark:text-gray-300">🪞 偶函数（y轴对称）</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              {isEven ? 'f(-x)=f(x)，沿y轴对折重合' : '对折不重合'}
+            </div>
+          </div>
+          <div className={`p-2 rounded-lg border text-center ${isOdd ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700' : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'}`}>
+            <div className="text-xs font-bold text-gray-700 dark:text-gray-300">🌀 奇函数（原点对称）</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              {isOdd ? 'f(-x)=-f(x)，旋转180°重合' : '旋转不重合'}
+            </div>
+          </div>
+          <div className={`p-2 rounded-lg border text-center ${isPeriodic ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700' : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'}`}>
+            <div className="text-xs font-bold text-gray-700 dark:text-gray-300">🔄 周期性</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              {isPeriodic ? '每隔固定间隔图形重复' : '图形不重复'}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -311,6 +372,33 @@ export const ZeroHunter: React.FC = () => {
       )}
 
       {!canBisect && <div className="text-xs text-red-500 dark:text-red-400">⚠ 当前区间两端函数值同号，不满足零点存在性定理（f(a)·f(b) &lt; 0）</div>}
+
+      {/* 二分法原理图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🎯 二分法原理：每步砍一半</div>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <span className="text-base">①</span>
+            <div className="text-[10px] text-gray-600 dark:text-gray-400">
+              <b className="text-blue-600 dark:text-blue-400">前提</b>：f(a) 和 f(b) 异号 → 曲线在 (a,b) 间穿过 x 轴 → 零点一定存在
+            </div>
+          </div>
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <span className="text-base">②</span>
+            <div className="text-[10px] text-gray-600 dark:text-gray-400">
+              <b className="text-green-600 dark:text-green-400">二分</b>：取中点 c=(a+b)/2，算 f(c)。若 f(c) 与 f(a) 同号，零点在 (c,b)；否则在 (a,c)
+            </div>
+          </div>
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <span className="text-base">③</span>
+            <div className="text-[10px] text-gray-600 dark:text-gray-400">
+              <b className="text-amber-600 dark:text-amber-400">收敛</b>：区间每步减半。当前区间宽度 = <b>{(right - left).toFixed(4)}</b>，
+              再二分 <b>{Math.max(0, Math.ceil(Math.log(0.001 / (right - left)) / Math.log(2)))}</b> 步可达精度 0.001
+            </div>
+          </div>
+        </div>
+      </div>
+
       <Insight>零点存在性定理：如果 f(a)·f(b) &lt; 0 且函数连续，那么 (a,b) 之间一定有零点。每二分一次，区间宽度减半！</Insight>
     </div>
   );
@@ -418,6 +506,32 @@ export const DerivativeCalculator: React.FC = () => {
       </div>
 
       <Insight>当 h → 0 时，割线（红线）越来越接近切线（绿虚线），割线斜率 → 导数。这就是导数的极限定义：f'(x₀) = lim<sub>h→0</sub> [f(x₀+h) - f(x₀)] / h</Insight>
+
+      {/* 割线 vs 切线含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">📐 割线 vs 切线含义图解</div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="text-xs font-bold text-red-600 dark:text-red-400">🔴 割线</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">连接曲线上两点的直线</div>
+            <div className="text-[10px] font-mono text-gray-600 dark:text-gray-400 mt-1">斜率 = Δy/Δx = {secantSlope.toFixed(3)}</div>
+            <div className="text-[10px] text-gray-400 mt-0.5">表示<b>平均变化率</b></div>
+          </div>
+          <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <div className="text-xs font-bold text-green-600 dark:text-green-400">🟢 切线</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">只触碰一点的直线</div>
+            <div className="text-[10px] font-mono text-gray-600 dark:text-gray-400 mt-1">斜率 = f'(x₀) = {trueDerivative.toFixed(3)}</div>
+            <div className="text-[10px] text-gray-400 mt-0.5">表示<b>瞬时变化率</b></div>
+          </div>
+          <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <div className="text-xs font-bold text-amber-600 dark:text-amber-400">⚡ 关系</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">h 越小 → 割线越接近切线</div>
+            <div className="text-[10px] font-mono text-gray-600 dark:text-gray-400 mt-1">误差 = {error.toFixed(4)}</div>
+            <div className="text-[10px] text-gray-400 mt-0.5">极限思想的核心</div>
+          </div>
+        </div>
+      </div>
+
       <button onClick={() => setH(Math.max(0.01, h - 0.1))} className="px-3 py-1.5 text-xs rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-colors w-full">h 减小 → 看割线逼近切线</button>
     </div>
   );

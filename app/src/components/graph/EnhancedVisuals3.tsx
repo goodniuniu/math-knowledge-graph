@@ -97,7 +97,41 @@ export const UnitCircleExplorer: React.FC = () => {
       </div>
 
       <button onClick={() => setShowTan(!showTan)} className={`px-3 py-1 text-xs rounded-lg transition-colors ${showTan ? 'bg-green-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'}`}>{showTan ? '隐藏' : '显示'}正切线</button>
-      <Insight>蓝线（cos）是 x 坐标，红线（sin）是 y 坐标。当角度转到 90° 或 270° 时，cos=0，tan 趋向无穷大！</Insight>
+      <Insight>蓝线（cos）是 x 坐标，红线（sin）是 y 轴坐标。当角度转到 90° 或 270° 时，cos=0，tan 趋向无穷大！</Insight>
+
+      {/* sin/cos/tan 含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🎯 三角函数值的几何含义</div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="text-xs font-bold text-blue-600 dark:text-blue-400">cos(θ) = {cos.toFixed(3)}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              <b>点 P 的 x 坐标</b><br />
+              水平投影长度<br />
+              θ=0°→1, θ=90°→0, θ=180°→-1
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="text-xs font-bold text-red-600 dark:text-red-400">sin(θ) = {sin.toFixed(3)}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              <b>点 P 的 y 坐标</b><br />
+              垂直投影长度<br />
+              θ=0°→0, θ=90°→1, θ=180°→0
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <div className="text-xs font-bold text-green-600 dark:text-green-400">tan(θ) = {Math.abs(cos) < 0.01 ? '∞' : tan.toFixed(3)}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              <b>sin/cos 的比值</b><br />
+              单位圆切线段长<br />
+              θ=45°→1, θ=90°→∞
+            </div>
+          </div>
+        </div>
+        <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 mt-2 text-[10px] text-gray-600 dark:text-gray-400">
+          <b className="text-amber-500">💡 恒等式</b>：sin²θ + cos²θ = <b>{(sin * sin + cos * cos).toFixed(3)}</b>（始终等于 1，因为单位圆半径=1，勾股定理）
+        </div>
+      </div>
     </div>
   );
 };
@@ -160,6 +194,16 @@ export const SymmetryMagic: React.FC = () => {
 
       <button onClick={() => setShowMirror(!showMirror)} className="px-3 py-1 text-xs rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">{showMirror ? '隐藏' : '显示'}镜像 f(-x)</button>
       <Insight>当镜像（虚线）与原曲线重合 → 偶函数；关于原点旋转 180° 重合 → 奇函数。加相位后，奇偶性可能改变！</Insight>
+
+      {/* 诱导公式核心含义 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🔑 三角函数的对称性 → 诱导公式</div>
+        <div className="p-2.5 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-[10px] text-gray-600 dark:text-gray-400 space-y-1">
+          <div><b className="text-purple-500">奇偶性 → 负角公式</b>：{fns.isOdd ? `sin(-x) = -sin(x)（奇函数→取负号）` : fns.isEven ? `cos(-x) = cos(x)（偶函数→不变号）` : '取决于函数类型'}</div>
+          <div><b className="text-amber-500">周期性 → 大角化小</b>：sin(x + 2kπ) = sin(x)，cos(x + 2kπ) = cos(x) → 任意大角都可化为 [0, 2π) 内</div>
+          <div><b className="text-blue-500">几何意义</b>：绕原点旋转 180° 重合 = 奇函数；沿 y 轴翻转重合 = 偶函数</div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -242,6 +286,28 @@ export const FivePointDrawing: React.FC = () => {
 
       <button onClick={() => setShowAll(!showAll)} className="px-3 py-1 text-xs rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">{showAll ? '只显示五点' : '显示完整曲线'}</button>
       <Insight>五点法：取 0、π/2、π、3π/2、2π 五个关键点，描点连线就能画出三角函数的草图。这是考试画图的标准方法！</Insight>
+
+      {/* 五点含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">✋ 为什么选这五个点？</div>
+        <div className="space-y-1">
+          <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-[10px] text-gray-600 dark:text-gray-400">
+            <b className="text-indigo-500">关键特征</b>：这五个点分别对应 sin/cos 的<b>零点、极值点</b>——它们决定了波形的基本形状
+          </div>
+          <div className="grid grid-cols-5 gap-1">
+            {fiveX.map((x, i) => (
+              <div key={i} className="p-1.5 rounded bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-center">
+                <div className="text-[9px] text-red-500 font-bold">P{i + 1}</div>
+                <div className="text-[9px] text-gray-500">{x === 0 ? '0' : `${(x / Math.PI)}π`}</div>
+                <div className="text-[9px] font-bold text-gray-700 dark:text-gray-300">{fiveY[i].toFixed(1)}</div>
+                <div className="text-[8px] text-gray-400">
+                  {fiveY[i] === 0 ? '零点' : Math.abs(fiveY[i]) >= A - 0.01 ? '峰/谷' : '上升'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -298,6 +364,36 @@ export const WaveSynthesizer: React.FC = () => {
       </div>
 
       <Insight>任意周期函数都可以拆成正弦波的叠加——这就是傅里叶分析！调高 A₃ 看高频分量如何改变波形。</Insight>
+
+      {/* 合成波含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🎵 为什么"叠加"能改变波形？</div>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="text-xs font-bold text-blue-600 dark:text-blue-400">基波 (ω₁={f1})</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              <b>最低频率</b>，决定合成波的<br />大轮廓和周期
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <div className="text-xs font-bold text-green-600 dark:text-green-400">谐波 (ω₂={f2})</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              <b>3 倍频</b>，叠加后让波形<br />出现"尖角"
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
+            <div className="text-xs font-bold text-orange-600 dark:text-orange-400">高谐 (ω₃={f3})</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              <b>5 倍频</b>，让波形更接近<br />方波/锯齿波
+            </div>
+          </div>
+        </div>
+        <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 mt-2 text-[10px] text-gray-600 dark:text-gray-400">
+          <b className="text-purple-500">🔊 现实应用</b>：每个乐音都是基波+多个谐波叠加。基波决定"音高"，谐波比例决定"音色"。
+          钢琴和小提琴弹同一个 Do 听起来不同，就是因为谐波比例不同！
+        </div>
+      </div>
+
       <Scenario>试试 A₁=1, ω₁=1, A₂=0.3, ω₂=3, A₃=0.15, ω₃=5——你会看到一个近似方波！</Scenario>
     </div>
   );
@@ -383,6 +479,41 @@ export const EllipseDrawing: React.FC = () => {
         </div>
       )}
       <Insight>椭圆上任意一点到两焦点距离之和恒等于 2a——这就是"绳子画椭圆"的原理：一根定长的绳子钉在两个焦点上就能画出椭圆！</Insight>
+
+      {/* 椭圆参数含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🔑 椭圆各参数的含义</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="text-xs font-bold text-blue-600 dark:text-blue-400">a = {a.toFixed(1)}（半长轴）</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              椭圆"最宽"方向的半径。<br />
+              |PF₁| + |PF₂| = 2a = <b>{(2 * a).toFixed(2)}</b>
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="text-xs font-bold text-blue-600 dark:text-blue-400">b = {b.toFixed(1)}（半短轴）</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              椭圆"最窄"方向的半径。<br />
+              a² = b² + c² → b 越小越扁
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="text-xs font-bold text-red-600 dark:text-red-400">c = {c.toFixed(2)}（半焦距）</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              中心到焦点的距离。<br />
+              c² = |a² - b²|
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <div className="text-xs font-bold text-green-600 dark:text-green-400">e = {(c / Math.max(a, b)).toFixed(3)}（离心率）</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              描述椭圆"有多扁"。<br />
+              e=0 → 圆, e→1 → 很扁
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -462,6 +593,34 @@ export const HyperbolaExplorer: React.FC = () => {
         <div className="text-xs text-center text-gray-500 dark:text-gray-400">|PF₁| - |PF₂| = {Math.abs(d1 - d2).toFixed(2)} = 2a = {(2 * a).toFixed(2)} ✓</div>
       )}
       <Insight>双曲线上任意一点到两焦点距离之差的绝对值恒等于 2a。渐近线是双曲线"无限接近但永远到不了"的直线！</Insight>
+
+      {/* 双曲线参数含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🔑 双曲线与椭圆的对比</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="text-xs font-bold text-blue-600 dark:text-blue-400">椭圆</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              |PF₁| + |PF₂| = 2a（<b>和</b>定值）<br />
+              a² = b² + c²<br />
+              封闭曲线，e &lt; 1
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="text-xs font-bold text-red-600 dark:text-red-400">双曲线</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              ||PF₁| - |PF₂|| = 2a（<b>差</b>定值）<br />
+              c² = a² + b²<br />
+              开放曲线，e &gt; 1
+            </div>
+          </div>
+        </div>
+        <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 mt-2 text-[10px] text-gray-600 dark:text-gray-400">
+          <b className="text-amber-500">📐 渐近线</b>：y = ±(b/a)x。
+          双曲线无限延伸时，会<b>无限靠近但永远碰不到</b>这两条直线。
+          <br />🌏 <b>现实</b>：冷却塔外形、某些彗星轨道都是双曲线
+        </div>
+      </div>
     </div>
   );
 };
@@ -539,6 +698,31 @@ export const ParabolaSimulator: React.FC = () => {
         </div>
       )}
       <Insight>抛物线上任意一点到焦点的距离 = 到准线的距离。所有平行光反射后都汇聚到焦点——这就是卫星天线和手电筒反光碗的原理！</Insight>
+
+      {/* 抛物线焦点/准线含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🔑 抛物线核心定义与性质</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <div className="text-xs font-bold text-red-600 dark:text-red-400">🔴 焦点 F</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              坐标 (0, p/2) = (0, {(p / 2).toFixed(2)})<br />
+              <b>光学核心</b>：所有平行光<br />反射后汇聚于此点
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700">
+            <div className="text-xs font-bold text-gray-600 dark:text-gray-400">📏 准线</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              方程 y = -p/2 = {(-p / 2).toFixed(2)}<br />
+              <b>定义线</b>：抛物线上每一点<br />到焦点和到准线等距
+            </div>
+          </div>
+        </div>
+        <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 mt-2 text-[10px] text-gray-600 dark:text-gray-400">
+          <b className="text-green-500">📐 定义验证</b>：|PF| = {distToFocus.toFixed(3)}, |P到准线| = {distToDirectrix.toFixed(3)} → 相等 ✓
+          <br />📡 <b>现实应用</b>：卫星天线（平行信号汇聚到焦点接收器）、汽车前灯（焦点灯泡→平行光射出）、太阳灶
+        </div>
+      </div>
     </div>
   );
 };
@@ -606,6 +790,54 @@ export const ArithmeticSequence: React.FC = () => {
         </div>
       </div>
       <Insight>等差数列求和的高斯公式：Sₙ = n(a₁+aₙ)/2。小高斯把 1+2+...+100 配成 50 对，每对都是 101，瞬间算出 5050！</Insight>
+
+      {/* 公差与配对含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🔑 等差数列核心含义</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="text-xs font-bold text-blue-600 dark:text-blue-400">公差 d = {d.toFixed(1)}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              每一项与前一项的<b>固定差值</b>。<br />
+              a₂ - a₁ = a₃ - a₂ = ... = d<br />
+              d &gt; 0 递增, d &lt; 0 递减, d = 0 常数
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <div className="text-xs font-bold text-amber-600 dark:text-amber-400">高斯配对法</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              首项+末项 = a₁+aₙ<br />
+              = {a1.toFixed(1)} + {terms[n - 1].toFixed(1)}<br />
+              = <b>{(a1 + terms[n - 1]).toFixed(1)}</b>（恒定！）<br />
+              n 项配 n/2 对 → S = n/2 × {(a1 + terms[n - 1]).toFixed(1)}
+            </div>
+          </div>
+        </div>
+        {/* 配对可视化 */}
+        {n <= 10 && (
+          <div className="p-2.5 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 mt-2">
+            <div className="text-[10px] font-medium text-purple-700 dark:text-purple-300 mb-1">🔗 配对可视化</div>
+            <div className="flex flex-col gap-0.5">
+              {Array.from({ length: Math.floor(n / 2) }, (_, i) => {
+                const pairSum = terms[i] + terms[n - 1 - i];
+                return (
+                  <div key={i} className="flex items-center gap-1 text-[9px]">
+                    <span className="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono">a{i + 1}={terms[i].toFixed(1)}</span>
+                    <span className="text-gray-400">+</span>
+                    <span className="px-1.5 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-mono">a{n - i}={terms[n - 1 - i].toFixed(1)}</span>
+                    <span className="text-gray-400">=</span>
+                    <span className="px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-mono font-bold">{pairSum.toFixed(1)}</span>
+                    {i === 0 && <span className="text-purple-400 ml-1">← 每对都一样！</span>}
+                  </div>
+                );
+              })}
+              {n % 2 === 1 && (
+                <div className="text-[9px] text-gray-400 mt-0.5">中间项 a{Math.ceil(n / 2)} = {terms[Math.floor(n / 2)].toFixed(1)}（无配对，单独计入）</div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -684,6 +916,37 @@ export const GeometricSequence: React.FC = () => {
         </div>
       )}
       <Insight>{q > 1 ? '公比 > 1，等比数列指数增长——这就是"复利效应"的数学本质！' : q < 1 ? '公比 < 1，等比数列收敛——药物代谢、放射性衰变都是这个规律。' : '公比 = 1，退化为常数列。'}</Insight>
+
+      {/* 公比含义图解 */}
+      <div className="mt-1">
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">🔑 等比数列核心含义</div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <div className="text-xs font-bold text-green-600 dark:text-green-400">公比 q = {q.toFixed(1)}</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              每一项与前一项的<b>固定比值</b>。<br />
+              a₂/a₁ = a₃/a₂ = ... = q<br />
+              {q > 1 ? 'q > 1 → 指数增长（复利、裂变）' : q < 1 ? '0 &lt; q &lt; 1 → 收敛递减（衰变、折扣）' : 'q = 1 → 常数列'}
+            </div>
+          </div>
+          <div className="p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
+            <div className="text-xs font-bold text-orange-600 dark:text-orange-400">相邻项增量</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+              a₂ - a₁ = {terms[0].toFixed(1)} × ({q.toFixed(1)}-1)<br />
+              = <b>{(terms[1] - terms[0]).toFixed(2)}</b><br />
+              a₃ - a₂ = <b>{(terms[2] - terms[1]).toFixed(2)}</b><br />
+              {q > 1 ? '增量越来越大 → "加速增长"' : q < 1 ? '增量越来越小 → "减速收敛"' : '增量为零'}
+            </div>
+          </div>
+        </div>
+        {Math.abs(q) < 1 && (
+          <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 mt-2 text-[10px] text-gray-600 dark:text-gray-400">
+            <b className="text-purple-500">∞ 无穷求和</b>：当 |q| &lt; 1，无限项相加居然是一个<b>有限的数</b>！
+            S = a₁/(1-q) = {a1.toFixed(1)}/{(1 - q).toFixed(2)} = <b className="text-purple-600 dark:text-purple-400">{(a1 / (1 - q)).toFixed(4)}</b>
+            <br />📐 这就是"无限循环小数 0.999...=1"的数学基础。
+          </div>
+        )}
+      </div>
     </div>
   );
 };
