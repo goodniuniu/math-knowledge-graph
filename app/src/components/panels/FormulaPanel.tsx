@@ -26,13 +26,13 @@ const FormulaPanel: React.FC = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-white">
-      <div className="p-4 border-b border-gray-100">
+    <div className="h-full overflow-y-auto bg-white dark:bg-gray-900 transition-colors">
+      <div className="p-4 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-indigo-600" />
-          <h2 className="font-bold text-gray-800">重要公式速查</h2>
+          <BookOpen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+          <h2 className="font-bold text-gray-800 dark:text-gray-100">重要公式速查</h2>
         </div>
-        <p className="text-xs text-gray-500 mt-1">点击展开查看各章节核心公式</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">点击展开查看各章节核心公式</p>
       </div>
 
       <div className="p-3 space-y-2">
@@ -83,13 +83,13 @@ const FormulaCard: React.FC<{ formula: Formula }> = ({ formula }) => {
       onClick={() => setShowDesc(!showDesc)}
     >
       <div className="flex items-start gap-2">
-        <span className="text-xs font-medium text-gray-500 mt-0.5 w-16 flex-shrink-0">{formula.name}</span>
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5 w-16 flex-shrink-0">{formula.name}</span>
         <div className="flex-1">
-          <div className="text-sm text-gray-800 leading-relaxed py-1">
+          <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed py-1">
             <Math displayMode>{formula.latex}</Math>
           </div>
           {showDesc && formula.description && (
-            <p className="text-xs text-gray-500 mt-1.5 italic">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 italic">
               {formula.description}
             </p>
           )}

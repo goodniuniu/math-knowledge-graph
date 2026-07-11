@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>函数应用（一）· 交互式学习</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+    line-height: 1.6;
+    padding-bottom: 60px;
+  }
+  header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0891b2 100%);
+    color: #fff;
+    padding: 28px 20px 22px;
+    text-align: center;
+    box-shadow: 0 4px 18px rgba(30,58,138,0.25);
+  }
+  header h1 { font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+  header p { font-size: 13px; opacity: 0.9; margin-top: 6px; }
+
+  .container { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+
+  /* Tab 导航 */
+  .tabs {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    margin: 22px 0 18px;
+  }
+  .tab-btn {
+    border: none; cursor: pointer; padding: 9px 16px; border-radius: 999px;
+    font-size: 14px; font-weight: 600; color: #475569;
+    background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transition: all 0.18s ease;
+  }
+  .tab-btn:hover { transform: translateY(-1px); }
+  .tab-btn.active { background: #2563eb; color: #fff; box-shadow: 0 3px 10px rgba(37,99,235,0.35); }
+  .tab-btn.t-quad.active { background: #ea580c; box-shadow: 0 3px 10px rgba(234,88,12,0.35); }
+  .tab-btn.t-piece.active { background: #16a34a; box-shadow: 0 3px 10px rgba(22,163,74,0.35); }
+  .tab-btn.t-flow.active { background: #7c3aed; box-shadow: 0 3px 10px rgba(124,58,237,0.35); }
+  .tab-btn.t-quiz.active { background: #db2777; box-shadow: 0 3px 10px rgba(219,39,119,0.35); }
+
+  .panel { display: none; animation: fade 0.25s ease; }
+  .panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+
+  .card {
+    background: #fff; border-radius: 14px; padding: 20px;
+    box-shadow: 0 2px 12px rgba(15,23,42,0.06); margin-bottom: 16px;
+  }
+  .card-title {
+    display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700;
+    margin-bottom: 12px; color: #0f172a;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .dot-blue { background: #2563eb; }
+  .dot-orange { background: #ea580c; }
+  .dot-green { background: #16a34a; }
+  .dot-purple { background: #7c3aed; }
+  .dot-pink { background: #db2777; }
+
+  .scenario {
+    background: #f8fafc; border-left: 4px solid #2563eb; padding: 10px 14px;
+    border-radius: 0 8px 8px 0; font-size: 13.5px; color: #334155; margin-bottom: 14px;
+  }
+
+  .formula {
+    font-family: "Cambria", "Georgia", "Times New Roman", serif;
+    font-size: 17px; text-align: center; padding: 12px;
+    background: #f1f5f9; border-radius: 8px; margin-bottom: 14px; color: #0f172a;
+  }
+  .formula sub { font-size: 0.7em; }
+  .formula sup { font-size: 0.7em; }
+  .frac { display: inline-flex; flex-direction: column; text-align: center; vertical-align: middle; margin: 0 3px; }
+  .frac .num { border-bottom: 1px solid currentColor; padding: 0 4px; }
+  .frac .den { padding: 0 4px; }
+
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; margin: 6px 0 14px; }
+  .ctrl label { font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px; }
+  .ctrl .val { color: #2563eb; font-weight: 700; }
+  input[type=range] {
+    width: 100%; height: 6px; border-radius: 3px; -webkit-appearance: none;
+    background: #e2e8f0; outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: #2563eb; box-shadow: 0 1px 4px rgba(0,0,0,0.3); border: 2px solid #fff;
+  }
+  .ctrl.orange input[type=range]::-webkit-slider-thumb { background: #ea580c; }
+  .ctrl.green input[type=range]::-webkit-slider-thumb { background: #16a34a; }
+
+  .plot-wrap { display: flex; justify-content: center; overflow-x: auto; }
+  svg { display: block; max-width: 100%; height: auto; }
+
+  .result {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
+  }
+  .result .chip {
+    background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8;
+    padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: 600;
+  }
+  .result .chip b { font-size: 16px; }
+  .result .chip.orange { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+  .result .chip.green { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+
+  .warn {
+    background: #fefce8; border: 1px solid #fde047; border-left: 4px solid #eab308;
+    padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 13px; color: #854d0e;
+    margin-top: 14px; display: flex; gap: 8px; align-items: flex-start;
+  }
+  .warn b { color: #a16207; }
+
+  /* 解题流程 */
+  .steps { counter-reset: step; }
+  details.step {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+    margin-bottom: 10px; overflow: hidden; transition: all 0.2s;
+  }
+  details.step[open] { border-color: #c4b5fd; box-shadow: 0 2px 10px rgba(124,58,237,0.12); }
+  details.step > summary {
+    list-style: none; cursor: pointer; padding: 13px 16px; font-weight: 700;
+    font-size: 15px; display: flex; align-items: center; gap: 12px; color: #1e293b;
+  }
+  details.step > summary::-webkit-details-marker { display: none; }
+  .step-num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: #7c3aed; color: #fff; display: flex; align-items: center;
+    justify-content: center; font-size: 14px; font-weight: 700;
+  }
+  .step-body { padding: 4px 16px 16px 56px; font-size: 13.5px; color: #475569; }
+  .step-body .ex {
+    margin-top: 8px; background: #f8fafc; border-radius: 8px; padding: 10px 12px;
+    font-size: 13px; color: #334155; border: 1px dashed #cbd5e1;
+  }
+  details.step.key > summary { color: #be185d; }
+  details.step.key .step-num { background: #db2777; }
+  details.step.key[open] { border-color: #f9a8d4; box-shadow: 0 2px 10px rgba(219,39,119,0.15); }
+  .key-badge {
+    margin-left: auto; font-size: 11px; background: #fce7f3; color: #be185d;
+    padding: 2px 8px; border-radius: 999px; font-weight: 600;
+  }
+
+  /* 测验 */
+  .quiz-q { border: 1px solid #fbcfe8; border-radius: 12px; padding: 16px; margin-bottom: 14px; background: #fff; }
+  .quiz-q .q-type {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 10px;
+    border-radius: 999px; margin-bottom: 8px;
+  }
+  .q-type.t1 { background: #dbeafe; color: #1d4ed8; }
+  .q-type.t2 { background: #ffedd5; color: #c2410c; }
+  .q-type.t3 { background: #dcfce7; color: #15803d; }
+  .quiz-q .q-title { font-size: 14.5px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
+  .opt {
+    display: block; width: 100%; text-align: left; border: 1px solid #e2e8f0;
+    background: #f8fafc; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
+    font-size: 13.5px; cursor: pointer; transition: all 0.15s; color: #334155;
+  }
+  .opt:hover { border-color: #cbd5e1; background: #f1f5f9; }
+  .opt.correct { background: #dcfce7; border-color: #86efac; color: #166534; font-weight: 600; }
+  .opt.wrong { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+  .opt:disabled { cursor: default; }
+  .quiz-fb {
+    margin-top: 4px; font-size: 13px; padding: 10px 12px; border-radius: 8px; display: none;
+  }
+  .quiz-fb.show { display: block; }
+  .quiz-fb.ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+  .quiz-fb.no { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+  .quiz-fb .tag { font-weight: 700; }
+  .score-bar { text-align: center; font-size: 14px; color: #475569; margin: 6px 0 14px; }
+  .score-bar b { color: #db2777; font-size: 18px; }
+
+  footer { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>函数应用（一）· 交互式学习</h1>
+  <p>拖动参数 → 观察图像变化 → 看到计算结果 → 理解定义域限制</p>
+</header>
+
+<div class="container">
+
+  <!-- 导航 -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="linear">① 一次函数应用</button>
+    <button class="tab-btn t-quad" data-tab="quadratic">② 二次函数应用</button>
+    <button class="tab-btn t-piece" data-tab="piecewise">③ 分段函数应用</button>
+    <button class="tab-btn t-flow" data-tab="flow">④ 解题流程</button>
+    <button class="tab-btn t-quiz" data-tab="quiz">⑤ 互动测验</button>
+  </div>
+
+  <!-- ============ 一次函数 ============ -->
+  <section class="panel active" id="linear">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-blue"></span>手机流量套餐计费（一次函数模型）</div>
+      <div class="scenario">
+        某运营商套餐：月租 <b>b</b> 元，超出赠送额度后每使用 1&nbsp;GB 流量收费 <b>k</b> 元。
+        设当月使用流量为 <b>x</b> GB，则总费用 <b>y = kx + b</b>（简化线性模型）。
+      </div>
+      <div class="formula">y = k·x + b</div>
+      <div class="controls">
+        <div class="ctrl">
+          <label>单价系数 k = <span class="val" id="lin-k-v">3.0</span> 元/GB</label>
+          <input type="range" id="lin-k" min="1" max="8" step="0.5" value="3">
+        </div>
+        <div class="ctrl">
+          <label>月租 b = <span class="val" id="lin-b-v">20</span> 元</label>
+          <input type="range" id="lin-b" min="0" max="50" step="1" value="20">
+        </div>
+        <div class="ctrl">
+          <label>使用量 x = <span class="val" id="lin-x-v">15.0</span> GB</label>
+          <input type="range" id="lin-x" min="0" max="100" step="0.5" value="15">
+        </div>
+        <div class="ctrl" style="display:flex;align-items:flex-end;">
+          <div class="result" style="margin:0;">
+            <div class="chip">当前费用 y = <b id="lin-y">65.0</b> 元</div>
+          </div>
+        </div>
+      </div>
+      <div class="plot-wrap"><div id="lin-plot"></div></div>
+      <div class="warn">
+        <span>⚠️</span>
+        <div><b>定义域提醒：</b>实际中 x ≥ 0（流量非负），且套餐通常封顶 100&nbsp;GB（超出断网），故合理定义域为
+        <b>0 ≤ x ≤ 100</b>。另外若按整 GB 计费，x 应取非负整数，图像为离散点而非连续直线。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 二次函数 ============ -->
+  <section class="panel" id="quadratic">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-orange"></span>商品利润最大化（二次函数模型）</div>
+      <div class="scenario">
+        某商品每件进价为 <b>m</b> 元。当售价定为 <b>x</b> 元时，每天销量为 <b>n − p·x</b> 件（价格越高销量越低）。
+        每日利润 <b>y = (x − m)(n − p·x)</b>，是开口向下的二次函数，存在最大利润。
+      </div>
+      <div class="formula">y = (x − m)(n − p·x) = −p·x² + (pm + n)·x − mn</div>
+      <div class="controls">
+        <div class="ctrl orange">
+          <label>进价 m = <span class="val" id="qua-m-v">10</span> 元</label>
+          <input type="range" id="qua-m" min="5" max="40" step="1" value="10">
+        </div>
+        <div class="ctrl orange">
+          <label>基准销量 n = <span class="val" id="qua-n-v">300</span> 件</label>
+          <input type="range" id="qua-n" min="100" max="400" step="10" value="300">
+        </div>
+        <div class="ctrl orange">
+          <label>价格敏感度 p = <span class="val" id="qua-p-v">10</span></label>
+          <input type="range" id="qua-p" min="2" max="20" step="1" value="10">
+        </div>
+        <div class="ctrl orange">
+          <label>当前定价 x = <span class="val" id="qua-x-v">20.0</span> 元</label>
+          <input type="range" id="qua-x" min="10" max="30" step="0.5" value="20">
+        </div>
+      </div>
+      <div class="plot-wrap"><div id="qua-plot"></div></div>
+      <div class="result">
+        <div class="chip orange">最优定价 x* = <b id="qua-xstar">20.0</b> 元</div>
+        <div class="chip orange">最大利润 y<sub>max</sub> = <b id="qua-ymax">1000</b> 元</div>
+        <div class="chip orange">当前利润 = <b id="qua-ycur">1000</b> 元</div>
+      </div>
+
+      <div class="card-title" style="margin-top:18px;"><span class="dot dot-orange"></span>配方法推导（求最值）</div>
+      <div class="formula" style="font-size:14px;text-align:left;line-height:2;">
+        y = −p·x² + (pm + n)·x − mn<br>
+        &nbsp;&nbsp;= −p[ x² − <span class="frac"><span class="num">pm + n</span><span class="den">p</span></span>x ] − mn<br>
+        &nbsp;&nbsp;= −p[ (x − <span class="frac"><span class="num">pm + n</span><span class="den">2p</span></span>)² − (<span class="frac"><span class="num">pm + n</span><span class="den">2p</span></span>)² ] − mn<br>
+        &nbsp;&nbsp;= −p(x − x*)² + <span class="frac"><span class="num">(n − pm)²</span><span class="den">4p</span></span>
+      </div>
+      <div style="font-size:13px;color:#475569;background:#fff7ed;border-radius:8px;padding:10px 12px;">
+        ∴ 当 <b>x* = (pm + n)/(2p) = (n/p + m)/2</b> 时，利润取得最大值
+        <b>y<sub>max</sub> = (n − pm)²/(4p)</b>。图像顶点即最优点。
+      </div>
+
+      <div class="card-title" style="margin-top:18px;"><span class="dot dot-orange"></span>均值不等式的替代思路</div>
+      <div style="font-size:13px;color:#475569;background:#fff7ed;border-radius:8px;padding:10px 12px;line-height:1.9;">
+        利润 y = (x − m)(n − p·x) 可改写为
+        <b>y = p·(x − m)·(<span class="frac"><span class="num">n</span><span class="den">p</span></span> − x)</b>。<br>
+        令 u = x − m，v = <span class="frac"><span class="num">n</span><span class="den">p</span></span> − x，则 <b>u + v = <span class="frac"><span class="num">n</span><span class="den">p</span></span> − m</b>（为定值）。<br>
+        由均值不等式，当 <b>u = v</b> 时乘积 uv 最大，即 x − m = <span class="frac"><span class="num">n</span><span class="den">p</span></span> − x
+        → <b>x = (m + n/p)/2 = x*</b>，与配方法结果一致。
+      </div>
+
+      <div class="warn">
+        <span>⚠️</span>
+        <div><b>定义域提醒：</b>售价必须不低于进价才不亏本 → <b>x ≥ m</b>；同时销量不能为负 →
+        <b>n − p·x ≥ 0 ⇒ x ≤ n/p</b>。故合理定义域为 <b>m ≤ x ≤ n/p</b>。若定价超出此区间，模型失去实际意义。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 分段函数 ============ -->
+  <section class="panel" id="piecewise">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-green"></span>居民阶梯水费（分段函数模型）</div>
+      <div class="scenario">
+        某地居民水费实行阶梯计价：用水量 <b>x</b>（吨）在 0–12 吨部分单价 <b>a</b> 元/吨；
+        12–18 吨部分单价 <b>b</b> 元/吨；超过 18 吨部分单价 <b>c</b> 元/吨。总费用 <b>y</b> 由三段拼接而成。
+      </div>
+      <div class="formula" style="font-size:14px;text-align:left;line-height:2;">
+        y = <span style="display:inline-block;">⎧<span style="display:inline-block;padding-left:6px;">a·x ,&nbsp;&nbsp;0 ≤ x ≤ 12<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;12a + b(x−12) ,&nbsp;&nbsp;12 &lt; x ≤ 18<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;12a + 6b + c(x−18) ,&nbsp;&nbsp;x &gt; 18</span></span>
+      </div>
+      <div class="controls">
+        <div class="ctrl green">
+          <label>第一阶梯 a = <span class="val" id="pie-a-v">2.0</span> 元/吨</label>
+          <input type="range" id="pie-a" min="1" max="5" step="0.5" value="2">
+        </div>
+        <div class="ctrl green">
+          <label>第二阶梯 b = <span class="val" id="pie-b-v">3.0</span> 元/吨</label>
+          <input type="range" id="pie-b" min="2" max="8" step="0.5" value="3">
+        </div>
+        <div class="ctrl green">
+          <label>第三阶梯 c = <span class="val" id="pie-c-v">5.0</span> 元/吨</label>
+          <input type="range" id="pie-c" min="3" max="12" step="0.5" value="5">
+        </div>
+        <div class="ctrl green">
+          <label>用水量 x = <span class="val" id="pie-x-v">15.0</span> 吨</label>
+          <input type="range" id="pie-x" min="0" max="30" step="0.5" value="15">
+        </div>
+      </div>
+      <div class="plot-wrap"><div id="pie-plot"></div></div>
+      <div class="result">
+        <div class="chip green">当前水费 y = <b id="pie-y">35.0</b> 元</div>
+        <div class="chip green">所在阶梯：<b id="pie-sec">第二阶梯</b></div>
+      </div>
+      <div class="warn">
+        <span>⚠️</span>
+        <div><b>边界值提醒：</b>分段函数在 <b>x = 12</b> 和 <b>x = 18</b> 处函数值连续（前段末值 = 后段初值），
+        但<b>单价（斜率）发生跳跃</b>——这是"断点"的真正含义。计算时务必先用 x 判断所属区间，再代入对应解析式，
+        切勿全程用单一单价。定义域：<b>x ≥ 0</b>。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 解题流程 ============ -->
+  <section class="panel" id="flow">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-purple"></span>函数应用题五步解题法</div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:14px;">
+        点击每一步展开详细说明与示例。最后一步"还原实际意义"最易被忽视，却决定答案是否正确。
+      </p>
+      <div class="steps">
+
+        <details class="step">
+          <summary><span class="step-num">1</span>审题<span style="margin-left:auto;font-size:12px;color:#94a3b8;">点击展开</span></summary>
+          <div class="step-body">
+            仔细阅读题目，弄清<b>已知量</b>与<b>未知量</b>，识别变量之间的依赖关系，判断适合用哪类函数模型（一次 / 二次 / 分段）。
+            <div class="ex">示例：题目说"每多生产 1 件，成本增加固定数额"→ 线性关系；"围成矩形，面积随边长变化"→ 二次关系；"不同区间单价不同"→ 分段关系。</div>
+          </div>
+        </details>
+
+        <details class="step">
+          <summary><span class="step-num">2</span>设未知数<span style="margin-left:auto;font-size:12px;color:#94a3b8;">点击展开</span></summary>
+          <div class="step-body">
+            选取合适的自变量（通常用 x 表示"可变化的量"，如价格、用量、边长），因变量 y 表示要求的目标量（费用、利润、面积等）。
+            <div class="ex">示例：设售价为 x 元/件，则每日利润为 y 元。设用水量为 x 吨，则水费为 y 元。</div>
+          </div>
+        </details>
+
+        <details class="step">
+          <summary><span class="step-num">3</span>建立函数关系<span style="margin-left:auto;font-size:12px;color:#94a3b8;">点击展开</span></summary>
+          <div class="step-body">
+            根据题意列等式，写出 y 关于 x 的解析式，并<b>注明定义域</b>（受实际背景限制）。
+            <div class="ex">示例：利润 y = (x − m)(n − p·x)，且 x ≥ m、x ≤ n/p；水费 y 为三段拼接，x ≥ 0。</div>
+          </div>
+        </details>
+
+        <details class="step">
+          <summary><span class="step-num">4</span>求解<span style="margin-left:auto;font-size:12px;color:#94a3b8;">点击展开</span></summary>
+          <div class="step-body">
+            利用函数性质求解：一次函数看单调性；二次函数用配方法或顶点公式求最值；分段函数分段计算后比较。
+            <div class="ex">示例：二次函数在顶点 x* = (pm+n)/(2p) 处取最大值；分段函数需逐段代入再合并。</div>
+          </div>
+        </details>
+
+        <details class="step key">
+          <summary><span class="step-num">5</span>还原实际意义<span class="step-num" style="display:none"></span><span class="key-badge">⭐ 最重要</span></summary>
+          <div class="step-body">
+            把求出的数学结果<b>翻译回实际语境</b>，检验是否在定义域内、是否符合常理，并按题目要求取整或表述。
+            这一步能发现"负值""超界""应取整数"等隐藏错误，是得分的关键。
+            <div class="ex">示例：算出最优定价 x* = 20.3 元，但实际标价只到角 → 取 20.3 元或比较 20 与 20.5 取更优者；
+            算出利润为负 → 说明此定价亏本，应舍去；面积问题中边长不能为负。</div>
+            <div class="ex" style="border-color:#f9a8d4;background:#fdf2f8;">
+              ⚠️ <b>常见失分：</b>只写出"x = 20.3"就结束，却没说明"定价约 20.3 元时利润最大"；
+              或求出两个数学解却未剔除不符合实际背景的那个。务必"还原"！</div>
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 互动测验 ============ -->
+  <section class="panel" id="quiz">
+    <div class="card">
+      <div class="card-title"><span class="dot dot-pink"></span>互动测验（考察定义域与边界值）</div>
+      <div class="score-bar">已答 <b id="qz-done">0</b> / 6 题　正确 <b id="qz-right">0</b> 题</div>
+      <div id="quiz-box"></div>
+    </div>
+  </section>
+
+  <footer>函数应用（一）交互式学习页 · 纯前端单文件 · 拖动滑块即时计算</footer>
+</div>
+
+<script>
+/* ===================== 通用工具 ===================== */
+function fmt(v, d=2){ const r = Math.round(v*Math.pow(10,d))/Math.pow(10,d); return (Number.isInteger(r)? r.toString() : r.toFixed(d)).toString(); }
+function ticks(min,max,n){ const a=[]; const s=(max-min)/n; for(let i=0;i<=n;i++) a.push(min+s*i); return a; }
+
+// 构建坐标系（含网格、坐标轴、刻度）
+function buildPlot(xMin,xMax,yMin,yMax){
+  const W=580,H=370,pl=55,pr=18,pt=18,pb=42;
+  const pw=W-pl-pr, ph=H-pt-pb;
+  const X=x=>pl+(x-xMin)/(xMax-xMin)*pw;
+  const Y=y=>pt+ph-(y-yMin)/(yMax-yMin)*ph;
+  let g='';
+  ticks(xMin,xMax,6).forEach(t=>{
+    const px=X(t);
+    g+=`<line x1="${px.toFixed(1)}" y1="${pt}" x2="${px.toFixed(1)}" y2="${(pt+ph).toFixed(1)}" stroke="#eef2f7"/>`;
+    g+=`<text x="${px.toFixed(1)}" y="${pt+ph+16}" font-size="11" fill="#64748b" text-anchor="middle">${fmt(t,0)}</text>`;
+  });
+  ticks(yMin,yMax,5).forEach(t=>{
+    const py=Y(t);
+    g+=`<line x1="${pl}" y1="${py.toFixed(1)}" x2="${pl+pw}" y2="${py.toFixed(1)}" stroke="#eef2f7"/>`;
+    g+=`<text x="${pl-8}" y="${(py+4).toFixed(1)}" font-size="11" fill="#64748b" text-anchor="end">${fmt(t,0)}</text>`;
+  });
+  // 坐标轴
+  g+=`<line x1="${pl}" y1="${pt}" x2="${pl}" y2="${pt+ph}" stroke="#334155" stroke-width="1.5"/>`;
+  g+=`<line x1="${pl}" y1="${pt+ph}" x2="${pl+pw}" y2="${pt+ph}" stroke="#334155" stroke-width="1.5"/>`;
+  g+=`<text x="${pl+pw}" y="${pt+ph+34}" font-size="12" fill="#475569" text-anchor="end">x</text>`;
+  g+=`<text x="${pl-30}" y="${pt-4}" font-size="12" fill="#475569">y</text>`;
+  return {W,H,pl,pr,pt,pb,pw,ph,X,Y};
+}
+
+// 生成曲线 path
+function curvePath(f, xA, xB, X, Y, samples=240){
+  let d='';
+  for(let i=0;i<=samples;i++){
+    const x=xA+(xB-xA)*i/samples;
+    const px=X(x), py=Y(f(x));
+    d+=(i===0?'M':'L')+px.toFixed(1)+' '+py.toFixed(1)+' ';
+  }
+  return d;
+}
+function svgWrap(inner){ return `<svg viewBox="0 0 580 370" width="580" height="370" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`; }
+
+/* ===================== ① 一次函数 ===================== */
+const linK=document.getElementById('lin-k'), linB=document.getElementById('lin-b'), linX=document.getElementById('lin-x');
+function renderLinear(){
+  const k=+linK.value, b=+linB.value, x=+linX.value;
+  document.getElementById('lin-k-v').textContent=fmt(k,1);
+  document.getElementById('lin-b-v').textContent=fmt(b,0);
+  document.getElementById('lin-x-v').textContent=fmt(x,1);
+  const y=k*x+b;
+  document.getElementById('lin-y').textContent=fmt(y,1);
+
+  const xMax=100;
+  const yMax=Math.max(10, Math.ceil((k*xMax+b)*1.08/10)*10);
+  const p=buildPlot(0,xMax,0,yMax);
+  let g=p.g;
+  // 直线（仅画到 xMax，超出部分用虚线提示封顶）
+  g+=`<path d="${curvePath(t=>k*t+b,0,xMax,p.X,p.Y)}" fill="none" stroke="#2563eb" stroke-width="2.5"/>`;
+  // 封顶虚线
+  g+=`<line x1="${p.X(xMax).toFixed(1)}" y1="${p.pt}" x2="${p.X(xMax).toFixed(1)}" y2="${p.pt+p.ph}" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="5 4"/>`;
+  g+=`<text x="${p.X(xMax).toFixed(1)}" y="${p.pt-4}" font-size="10" fill="#b45309" text-anchor="middle">封顶100GB</text>`;
+  // 当前点
+  const cxp=p.X(x), cyp=p.Y(y);
+  g+=`<line x1="${cxp.toFixed(1)}" y1="${p.pt+p.ph}" x2="${cxp.toFixed(1)}" y2="${cyp.toFixed(1)}" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>`;
+  g+=`<circle cx="${cxp.toFixed(1)}" cy="${cyp.toFixed(1)}" r="5" fill="#dc2626"/>`;
+  g+=`<text x="${(cxp+8).toFixed(1)}" y="${(cyp-6).toFixed(1)}" font-size="11" fill="#dc2626" font-weight="bold">(x, y)=(${fmt(x,1)}, ${fmt(y,1)})</text>`;
+  document.getElementById('lin-plot').innerHTML=svgWrap(g);
+}
+[linK,linB,linX].forEach(el=>el.addEventListener('input',renderLinear));
+renderLinear();
+
+/* ===================== ② 二次函数 ===================== */
+const quaM=document.getElementById('qua-m'), quaN=document.getElementById('qua-n'), quaP=document.getElementById('qua-p'), quaX=document.getElementById('qua-x');
+function renderQuad(){
+  const m=+quaM.value, n=+quaN.value, p=+quaP.value;
+  let x=+quaX.value;
+  document.getElementById('qua-m-v').textContent=fmt(m,0);
+  document.getElementById('qua-n-v').textContent=fmt(n,0);
+  document.getElementById('qua-p-v').textContent=fmt(p,0);
+
+  const xLo=m, xHi=n/p;                 // 定义域 [m, n/p]
+  const xStar=(p*m+n)/(2*p);            // 最优定价
+  const yMax=(n-p*m)*(n-p*m)/(4*p);     // 最大利润
+  // 调整 x 滑块范围并钳制
+  quaX.min=xLo; quaX.max=xHi;
+  if(x<xLo){x=xLo; quaX.value=xLo;} if(x>xHi){x=xHi; quaX.value=xHi;}
+  document.getElementById('qua-x-v').textContent=fmt(x,1);
+
+  const f=t=>(t-m)*(n-p*t);
+  const yCur=f(x);
+  document.getElementById('qua-xstar').textContent=fmt(xStar,1);
+  document.getElementById('qua-ymax').textContent=fmt(yMax,0);
+  document.getElementById('qua-ycur').textContent=fmt(yCur,0);
+
+  const yTop=Math.max(yMax*1.12, 10);
+  const P=buildPlot(Math.max(0,xLo-2), xHi+2, 0, yTop);
+  let g=P.g;
+  // 抛物线（只画定义域区间）
+  g+=`<path d="${curvePath(f, xLo, xHi, P.X, P.Y)}" fill="none" stroke="#ea580c" stroke-width="2.5"/>`;
+  // 定义域阴影 [m, n/p]
+  const sx1=P.X(xLo), sx2=P.X(xHi);
+  g+=`<rect x="${sx1.toFixed(1)}" y="${P.pt}" width="${(sx2-sx1).toFixed(1)}" height="${P.ph}" fill="#ffedd5" opacity="0.5"/>`;
+  // 顶点
+  const vx=P.X(xStar), vy=P.Y(yMax);
+  g+=`<line x1="${vx.toFixed(1)}" y1="${P.pt+P.ph}" x2="${vx.toFixed(1)}" y2="${vy.toFixed(1)}" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>`;
+  g+=`<circle cx="${vx.toFixed(1)}" cy="${vy.toFixed(1)}" r="6" fill="#dc2626"/>`;
+  g+=`<text x="${(vx-6).toFixed(1)}" y="${(vy-8).toFixed(1)}" font-size="11" fill="#dc2626" font-weight="bold" text-anchor="middle">顶点(${fmt(xStar,1)}, ${fmt(yMax,0)})</text>`;
+  // 当前定价点
+  const cxp=P.X(x), cyp=P.Y(yCur);
+  g+=`<circle cx="${cxp.toFixed(1)}" cy="${cyp.toFixed(1)}" r="4.5" fill="#1d4ed8"/>`;
+  g+=`<text x="${(cxp+8).toFixed(1)}" y="${(cyp+4).toFixed(1)}" font-size="10" fill="#1d4ed8">当前(${fmt(x,1)}, ${fmt(yCur,0)})</text>`;
+  // 定义域边界标注
+  g+=`<text x="${sx1.toFixed(1)}" y="${P.pt+P.ph+30}" font-size="10" fill="#b45309" text-anchor="middle">x=m (不亏)</text>`;
+  g+=`<text x="${sx2.toFixed(1)}" y="${P.pt+P.ph+30}" font-size="10" fill="#b45309" text-anchor="middle">x=n/p (销量为0)</text>`;
+  document.getElementById('qua-plot').innerHTML=svgWrap(g);
+}
+[quaM,quaN,quaP,quaX].forEach(el=>el.addEventListener('input',renderQuad));
+renderQuad();
+
+/* ===================== ③ 分段函数 ===================== */
+const pieA=document.getElementById('pie-a'), pieB=document.getElementById('pie-b'), pieC=document.getElementById('pie-c'), pieX=document.getElementById('pie-x');
+function piecewiseY(a,b,c,x){
+  if(x<=12) return a*x;
+  if(x<=18) return 12*a + b*(x-12);
+  return 12*a + 6*b + c*(x-18);
+}
+function renderPiece(){
+  const a=+pieA.value, b=+pieB.value, c=+pieC.value, x=+pieX.value;
+  document.getElementById('pie-a-v').textContent=fmt(a,1);
+  document.getElementById('pie-b-v').textContent=fmt(b,1);
+  document.getElementById('pie-c-v').textContent=fmt(c,1);
+  document.getElementById('pie-x-v').textContent=fmt(x,1);
+  const y=piecewiseY(a,b,c,x);
+  document.getElementById('pie-y').textContent=fmt(y,1);
+  const sec = x<=12 ? '第一阶梯' : (x<=18 ? '第二阶梯' : '第三阶梯');
+  document.getElementById('pie-sec').textContent=sec;
+
+  const xMax=30;
+  const yTopFull=piecewiseY(a,b,c,xMax);
+  const yMax=Math.max(10, Math.ceil(yTopFull*1.1/10)*10);
+  const P=buildPlot(0,xMax,0,yMax);
+  let g=P.g;
+  // 三段
+  const seg=(xA,xB,col)=>{
+    const f=t=>piecewiseY(a,b,c,t);
+    g+=`<path d="${curvePath(f,xA,xB,P.X,P.Y,120)}" fill="none" stroke="${col}" stroke-width="2.5"/>`;
+  };
+  seg(0,12,'#22c55e');
+  seg(12,18,'#16a34a');
+  seg(18,xMax,'#15803d');
+  // 边界点
+  const b1=12*a, b2=12*a+6*b;
+  [[12,b1,'#22c55e'],[18,b2,'#15803d']].forEach(([bx,by,col])=>{
+    const px=P.X(bx), py=P.Y(by);
+    g+=`<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.5" fill="${col}" stroke="#fff" stroke-width="1.5"/>`;
+    g+=`<text x="${(px+6).toFixed(1)}" y="${(py-6).toFixed(1)}" font-size="10" fill="#166534">(12, ${fmt(b1,0)})</text>`;
+  });
+  // 当前点
+  const cxp=P.X(x), cyp=P.Y(y);
+  g+=`<line x1="${cxp.toFixed(1)}" y1="${P.pt+P.ph}" x2="${cxp.toFixed(1)}" y2="${cyp.toFixed(1)}" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>`;
+  g+=`<circle cx="${cxp.toFixed(1)}" cy="${cyp.toFixed(1)}" r="5" fill="#dc2626"/>`;
+  g+=`<text x="${(cxp+8).toFixed(1)}" y="${(cyp-6).toFixed(1)}" font-size="11" fill="#dc2626" font-weight="bold">(x, y)=(${fmt(x,1)}, ${fmt(y,1)})</text>`;
+  // 边界竖线
+  [12,18].forEach(bx=>{
+    const px=P.X(bx);
+    g+=`<line x1="${px.toFixed(1)}" y1="${P.pt}" x2="${px.toFixed(1)}" y2="${P.pt+P.ph}" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4"/>`;
+    g+=`<text x="${px.toFixed(1)}" y="${P.pt+P.ph+30}" font-size="10" fill="#64748b" text-anchor="middle">x=${bx}</text>`;
+  });
+  document.getElementById('pie-plot').innerHTML=svgWrap(g);
+}
+[pieA,pieB,pieC,pieX].forEach(el=>el.addEventListener('input',renderPiece));
+renderPiece();
+
+/* ===================== ④ Tab 切换 ===================== */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ===================== ⑤ 互动测验 ===================== */
+const quizData=[
+  { type:'t1', typeName:'一次函数·定义域', q:'某手机套餐月租 20 元，超出后每 GB 收 5 元。使用 8 GB 时费用为？',
+    options:['40 元','60 元','100 元','160 元'], answer:1,
+    fb:'费用 = 月租 + 单价×用量 = 20 + 5×8 = 60 元。易错点：忽略月租会误选 40，把 5×8 再乘什么会误选 160。' },
+  { type:'t1', typeName:'一次函数·定义域', q:'上题模型中，用量 x（GB）的合理定义域是？',
+    options:['x ≥ 0','x ≥ 0 且 x ≤ 100（封顶）','x 为整数','x ≥ 20'], answer:1,
+    fb:'流量非负且套餐封顶 100GB，故 0 ≤ x ≤ 100。易错点：忽略"封顶"这一实际限制，只写 x ≥ 0。' },
+
+  { type:'t2', typeName:'二次函数·最值', q:'利润 y = (x − 10)(300 − 10x)（x 为售价），利润最大时的定价 x 为？',
+    options:['10 元','15 元','20 元','30 元'], answer:2,
+    fb:'顶点 x* = (pm+n)/(2p) = (10×10+300)/(2×10) = 20 元，此时 y=(10)(100)=1000 最大。易错点：以为越贵利润越高（选 30），或取亏本价 10。' },
+  { type:'t2', typeName:'二次函数·定义域', q:'上述利润模型的合理定义域是？',
+    options:['x ≥ 10','10 ≤ x ≤ 30','x ≤ 30','x ≥ 0'], answer:1,
+    fb:'售价不低于进价 x ≥ 10，且销量非负 300−10x ≥ 0 ⇒ x ≤ 30，故 10 ≤ x ≤ 30。易错点：忽略销量非负的上限。' },
+
+  { type:'t3', typeName:'分段函数·边界值', q:'阶梯水费：0–10 吨 2 元/吨，10–20 吨 3 元/吨，>20 吨 5 元/吨。用水 15 吨费用为？',
+    options:['30 元','35 元','45 元','75 元'], answer:1,
+    fb:'15 吨跨前两阶梯：2×10 + 3×5 = 35 元。易错点：全程用 2 元得 30（A），全程用 5 元得 75（D）。' },
+  { type:'t3', typeName:'分段函数·断点', q:'上述水费函数在分界点 x = 10 处？',
+    options:['连续（无跳跃）','有断点（函数值跳跃）','无定义','为常数'], answer:0,
+    fb:'阶梯计价在边界处连续——前段末值(2×10=20) = 后段初值(20)，但单价(斜率)从 2 跳到 3。易错点：把"斜率跳跃"误认为"函数值跳跃"。' },
+];
+let qzDone=0, qzRight=0;
+const quizBox=document.getElementById('quiz-box');
+quizData.forEach((item,idx)=>{
+  const card=document.createElement('div');
+  card.className='quiz-q';
+  let optsHtml=item.options.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('');
+  card.innerHTML=`<span class="q-type ${item.type}">${item.typeName}</span>
+    <div class="q-title">${idx+1}. ${item.q}</div>${optsHtml}
+    <div class="quiz-fb" id="fb-${idx}"></div>`;
+  quizBox.appendChild(card);
+  const btns=card.querySelectorAll('.opt');
+  btns.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(btn.disabled) return;
+      const i=+btn.dataset.i;
+      btns.forEach(b=>b.disabled=true);
+      const fb=document.getElementById('fb-'+idx);
+      if(i===item.answer){
+        btn.classList.add('correct');
+        fb.className='quiz-fb ok show';
+        fb.innerHTML=`<span class="tag">✅ 回答正确！</span> ${item.fb}`;
+        qzRight++;
+      }else{
+        btn.classList.add('wrong');
+        btns[item.answer].classList.add('correct');
+        fb.className='quiz-fb no show';
+        fb.innerHTML=`<span class="tag">❌ 回答错误。</span> ${item.fb}`;
+      }
+      qzDone++;
+      document.getElementById('qz-done').textContent=qzDone;
+      document.getElementById('qz-right').textContent=qzRight;
+    });
+  });
+});
+</script>
+
+</body>
+</html>

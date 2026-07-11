@@ -30,7 +30,28 @@ export type DemoType =
   | 'combination'       // 排列组合
   | 'logic-condition'   // 充分必要条件
   | 'logic-quantifier'  // 全称存在量词
-  | 'logic-inequality'; // 不等式性质
+  | 'logic-inequality'  // 不等式性质
+  | 'function-application' // 函数应用（一）
+  // 增强可视化（19个新类型）
+  | 'enhanced-function-machine'   // 函数概念（09）
+  | 'enhanced-properties'         // 函数性质（10）
+  | 'enhanced-zero-hunter'        // 零点与二分法（17）
+  | 'enhanced-derivative'         // 导数概念（47）
+  | 'enhanced-quadratic'          // 二次函数三合一（08）
+  | 'enhanced-power'              // 幂函数家族（11）
+  | 'enhanced-exponential'        // 指数增长（13）
+  | 'enhanced-decay'              // 指数衰减（14）
+  | 'enhanced-log-scale'          // 对数运算（15）
+  | 'enhanced-inverse'            // 反函数（16）
+  | 'enhanced-unit-circle'        // 单位圆（19）
+  | 'enhanced-symmetry'           // 三角函数性质（20）
+  | 'enhanced-five-point'         // 五点作图（21）
+  | 'enhanced-wave'              // 波形合成（23）
+  | 'enhanced-ellipse'            // 椭圆（42）
+  | 'enhanced-hyperbola'          // 双曲线（43）
+  | 'enhanced-parabola'           // 抛物线（44）
+  | 'enhanced-arithmetic'         // 等差数列（45）
+  | 'enhanced-geometric';         // 等比数列（46）
 
 // 知识点到可视化类型的映射
 export const nodeDemos: Record<string, DemoType> = {
@@ -58,7 +79,7 @@ export const nodeDemos: Record<string, DemoType> = {
 
   // 不等式（2个知识点）
   '07': 'inequality-mean', // 基本不等式
-  '08': 'number-line',     // 二次不等式数轴
+  '08': 'enhanced-quadratic', // 二次函数三合一
 
   // 导数（1个知识点）
   '48': 'derivative-tangent',
@@ -101,6 +122,29 @@ export const nodeDemos: Record<string, DemoType> = {
   '04': 'logic-condition',
   '05': 'logic-quantifier',
   '06': 'logic-inequality',
+
+  // 函数应用（1个知识点）
+  '12': 'function-application',
+
+  // 增强可视化（19个知识点）
+  '09': 'enhanced-function-machine',   // 函数概念
+  '10': 'enhanced-properties',         // 函数性质
+  '17': 'enhanced-zero-hunter',        // 零点与二分法
+  '47': 'enhanced-derivative',         // 导数运算
+  '11': 'enhanced-power',              // 幂函数
+  '13': 'enhanced-exponential',        // 指数
+  '14': 'enhanced-decay',              // 指数函数
+  '15': 'enhanced-log-scale',          // 对数
+  '16': 'enhanced-inverse',            // 对数函数（反函数）
+  '19': 'enhanced-unit-circle',        // 三角函数概念
+  '20': 'enhanced-symmetry',           // 诱导公式
+  '21': 'enhanced-five-point',         // 三角函数图象
+  '23': 'enhanced-wave',              // y=Asin(ωx+φ)
+  '42': 'enhanced-ellipse',            // 椭圆
+  '43': 'enhanced-hyperbola',          // 双曲线
+  '44': 'enhanced-parabola',           // 抛物线
+  '45': 'enhanced-arithmetic',         // 等差数列
+  '46': 'enhanced-geometric',          // 等比数列
 };
 
 export function getNodeDemo(nodeId: string): DemoType | undefined {

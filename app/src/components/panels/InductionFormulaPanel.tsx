@@ -73,10 +73,10 @@ const InductionFormulaPanel: React.FC = () => {
   const [selectedFormula, setSelectedFormula] = useState<number | null>(null);
 
   return (
-    <div className="h-full overflow-y-auto bg-white p-4">
+    <div className="h-full overflow-y-auto bg-white dark:bg-gray-900 p-4 transition-colors">
       <div className="mb-4">
-        <h2 className="font-bold text-gray-800 text-lg">诱导公式</h2>
-        <p className="text-sm text-gray-500 mt-1">奇变偶不变，符号看象限</p>
+        <h2 className="font-bold text-gray-800 dark:text-gray-100 text-lg">诱导公式</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">奇变偶不变，符号看象限</p>
       </div>
 
       <Tabs defaultValue="formulas" className="w-full">

@@ -1,11 +1,18 @@
 // 高中数学知识点详细教学内容 - 基于2023版《高中知识清单》新教材版
 import type { Formula } from './knowledgeData';
 
+export interface DerivationStep {
+  title: string;
+  content: string;
+  latex?: string;
+}
+
 export interface NodeContent {
   definition: string;
   keyPoints: string[];
   formulas?: Formula[];
   methods?: string[];
+  derivations?: DerivationStep[];
 }
 
 export const nodeContent: Record<string, NodeContent> = {
@@ -361,6 +368,33 @@ export const nodeContent: Record<string, NodeContent> = {
     methods: [
       '角的变换：注意角与角之间的关系（如 α = (α+β) - β）。',
       '化简求值：注意"1"的代换（sin²α + cos²α = 1）和齐次式化切。',
+    ],
+    derivations: [
+      {
+        title: '第一步：推导两角差的余弦公式',
+        content: '在单位圆上任取两点 P₁(cosα, sinα) 和 P₂(cosβ, sinβ)，它们到原点的距离都是1。用两种方法计算 |P₁P₂|²：方法一（坐标距离公式）展开后得到 2-2(cosαcosβ+sinαsinβ)；方法二（将角α-β旋转到标准位置，利用余弦定理）得到 2-2cos(α-β)。两式相等即得公式。',
+        latex: '\\cos(\\alpha-\\beta)=\\cos\\alpha\\cos\\beta+\\sin\\alpha\\sin\\beta',
+      },
+      {
+        title: '第二步：推导两角和的余弦公式',
+        content: '将两角差公式中的 β 替换为 -β，利用奇偶性 cos(-β)=cosβ, sin(-β)=-sinβ，即得两角和的余弦公式。',
+        latex: '\\cos(\\alpha+\\beta)=\\cos\\alpha\\cos\\beta-\\sin\\alpha\\sin\\beta',
+      },
+      {
+        title: '第三步：推导两角和的正弦公式',
+        content: '利用诱导公式 sin(α+β) = cos[π/2-(α+β)] = cos[(π/2-α)-β]，再代入两角差余弦公式，展开后利用 cos(π/2-α)=sinα, sin(π/2-α)=cosα 化简。',
+        latex: '\\sin(\\alpha+\\beta)=\\sin\\alpha\\cos\\beta+\\cos\\alpha\\sin\\beta',
+      },
+      {
+        title: '第四步：推导二倍角公式',
+        content: '在两角和的正弦公式 sin(α+β) 中令 β=α，得 sin(2α)=2sinαcosα。在两角和的余弦公式中令 β=α，得 cos(2α)=cos²α-sin²α，再结合 sin²α+cos²α=1 变形为 2cos²α-1 或 1-2sin²α。',
+        latex: '\\sin 2\\alpha=2\\sin\\alpha\\cos\\alpha,\\quad \\cos 2\\alpha=\\cos^2\\alpha-\\sin^2\\alpha',
+      },
+      {
+        title: '第五步：推导半角公式',
+        content: '从余弦二倍角公式 cos(2θ)=2cos²θ-1 出发，令 θ=α/2，解出 cos(α/2)=±√[(1+cosα)/2]。同理从 cos(2θ)=1-2sin²θ 得 sin(α/2)=±√[(1-cosα)/2]，符号由 α/2 所在象限决定。',
+        latex: '\\cos\\frac{\\alpha}{2}=\\pm\\sqrt{\\frac{1+\\cos\\alpha}{2}},\\quad \\sin\\frac{\\alpha}{2}=\\pm\\sqrt{\\frac{1-\\cos\\alpha}{2}}',
+      },
     ],
   },
   '23': {

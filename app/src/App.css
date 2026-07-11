@@ -13,6 +13,10 @@ html, body, #root {
   scrollbar-color: #d1d5db transparent;
 }
 
+.dark .overflow-y-auto {
+  scrollbar-color: #374151 transparent;
+}
+
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
 }
@@ -26,8 +30,16 @@ html, body, #root {
   border-radius: 3px;
 }
 
+.dark .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #374151;
+}
+
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background-color: #9ca3af;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #4b5563;
 }
 
 /* Canvas container */
@@ -65,6 +77,12 @@ canvas {
   color: #3b82f6;
 }
 
+.dark [data-state="active"][role="tab"] {
+  background: #1f2937;
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+
 /* Formula card hover */
 .formula-card {
   transition: all 0.2s ease;
@@ -99,4 +117,12 @@ canvas {
   .w-80 {
     width: 280px;
   }
+}
+
+/* KaTeX dark mode text color */
+.dark .katex {
+  color: #e5e7eb;
+}
+.dark .katex .mord {
+  color: inherit;
 }
