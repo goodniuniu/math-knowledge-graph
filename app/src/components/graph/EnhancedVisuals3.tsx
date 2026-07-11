@@ -553,9 +553,7 @@ export const ArithmeticSequence: React.FC = () => {
   const [n, setN] = useState(8);
 
   const terms = Array.from({ length: n }, (_, i) => a1 + i * d);
-  const sum = terms.reduce((s, v) => s + v, 0);
   const formulaSum = (n * (2 * a1 + (n - 1) * d)) / 2;
-  const maxVal = Math.max(...terms.map(Math.abs), 1);
   const xMin = -0.5, xMax = n + 0.5, yMin = Math.min(0, ...terms) - 1, yMax = Math.max(0, ...terms) + 1;
 
   return (

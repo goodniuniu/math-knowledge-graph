@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { VW, VH, P, sx, sy, curve, PlotFrame, PSlider, Scenario, Insight } from './EnhancedVisualsShared';
+import { VW, VH, sx, sy, curve, PlotFrame, PSlider, Scenario, Insight } from './EnhancedVisualsShared';
 
 // ============================================================
 // 5. QuadraticTrinity (node 08 - 二次函数)
@@ -213,9 +213,6 @@ export const RadioactiveDecay: React.FC = () => {
   const fn = (x: number) => Math.pow(0.5, x / halfLife) * 100;
   const xMin = 0, xMax = 15, yMin = 0, yMax = 110;
   const decayPath = curve(fn, xMin, xMax, yMin, yMax);
-
-  // Log view: y = log_0.5(remaining/100) * halfLife
-  const logFn = (r: number) => r > 0 ? halfLife * Math.log(r / 100) / Math.log(0.5) : 0;
 
   const remaining = fn(time);
   const halfLives = time / halfLife;

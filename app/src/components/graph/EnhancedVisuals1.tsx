@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { VW, VH, P, sx, sy, curve, paramCurve, PlotFrame, PSlider, Scenario, Insight } from './EnhancedVisualsShared';
+import { VW, VH, P, sx, sy, curve, PlotFrame, PSlider, Scenario, Insight } from './EnhancedVisualsShared';
 
 // ============================================================
 // 1. FunctionMachine (node 09 - 函数概念)
