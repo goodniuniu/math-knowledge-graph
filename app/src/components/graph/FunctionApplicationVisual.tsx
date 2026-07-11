@@ -305,6 +305,197 @@ const QuadraticTab: React.FC = () => {
         <ResultChip color="orange">当前利润 = <b className="text-sm">{fmt(yCur, 0)}</b> 元</ResultChip>
       </div>
 
+      {/* ===== 利润函数各项含义图解 ===== */}
+      <div className="mt-3">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+          <h4 className="font-bold text-sm text-gray-800 dark:text-gray-100">利润函数各项含义图解</h4>
+        </div>
+
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 leading-relaxed">
+          利润函数 <span className="font-serif font-bold text-gray-700 dark:text-gray-200">y = (x − m)(n − p·x)</span>
+          {' '}是两个因子的乘积——<b className="text-red-500">每件赚多少</b> × <b className="text-blue-500">每天卖几件</b>。下面对每一项给出图解。
+        </p>
+
+        {/* ① 因子拆解卡片 */}
+        <div className="bg-orange-50/60 dark:bg-orange-900/15 rounded-lg p-3 mb-3 space-y-2">
+          {/* 因子一：单件利润 */}
+          <div className="flex items-center gap-3 p-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <span className="text-xl flex-shrink-0">🏷️</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                <span className="text-xs font-bold text-red-600 dark:text-red-400">因子一 · 单件利润</span>
+                <span className="text-sm font-mono font-bold text-red-700 dark:text-red-300 whitespace-nowrap">
+                  (x − m) = <b>{fmt(xClamped - m, 1)}</b> 元/件
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                每卖一件商品赚的钱 = 售价 − 进价。售价越高，此项越大
+              </div>
+            </div>
+          </div>
+
+          {/* 分隔：此消彼长 */}
+          <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold tracking-wider">
+            <span className="flex-1 border-t border-dashed border-gray-300 dark:border-gray-600" />
+            <span>× 此消彼长 →</span>
+            <span className="flex-1 border-t border-dashed border-gray-300 dark:border-gray-600" />
+          </div>
+
+          {/* 因子二：日销量 */}
+          <div className="flex items-center gap-3 p-2.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <span className="text-xl flex-shrink-0">📦</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400">因子二 · 日销量</span>
+                <span className="text-sm font-mono font-bold text-blue-700 dark:text-blue-300 whitespace-nowrap">
+                  (n − p·x) = <b>{fmt(Math.max(0, n - p * xClamped), 0)}</b> 件
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                每天能卖出多少件。价格越高，买的人越少，此项越小
+              </div>
+            </div>
+          </div>
+
+          {/* 分隔：等号 */}
+          <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold tracking-wider">
+            <span className="flex-1 border-t border-dashed border-gray-300 dark:border-gray-600" />
+            <span>= 每日总利润</span>
+            <span className="flex-1 border-t border-dashed border-gray-300 dark:border-gray-600" />
+          </div>
+
+          {/* 乘积：总利润 */}
+          <div className="flex items-center gap-3 p-2.5 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+            <span className="text-xl flex-shrink-0">💰</span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                <span className="text-xs font-bold text-green-600 dark:text-green-400">每日总利润</span>
+                <span className="text-sm font-mono font-bold text-green-700 dark:text-green-300 whitespace-nowrap">
+                  y = <b>{fmt(f(xClamped), 0)}</b> 元
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                = 单件利润 × 日销量。一增一减，乘积在"平衡点"最大
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ② 矩形面积图解 */}
+        {(() => {
+          const CC = n / p - m;
+          if (CC <= 0.5) return null;
+          const uu = xClamped - m;
+          const vv = CC - uu;
+
+          // SVG 布局
+          const RW = 340, RH = 310;
+          const RL = 55, RRx = 30, RTp = 30, RBm = 60;
+          const RPW = RW - RL - RRx;
+          const RPH = RH - RTp - RBm;
+          const RX = (u: number) => RL + (u / CC) * RPW;
+          const RY = (v: number) => RTp + RPH - (v / CC) * RPH;
+          const su = CC / 2;
+          const areaNow = uu * vv;
+          const areaMax = su * su;
+
+          return (
+            <div className="bg-orange-50/60 dark:bg-orange-900/15 rounded-lg p-3 mb-3">
+              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                📐 矩形面积图解：为什么"平衡点"利润最大？
+              </div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 mb-2 leading-relaxed">
+                令 <b>u</b> = x − m（单件利润），<b>v</b> = n/p − x（需求因子），
+                则 <b>u + v = {fmt(CC, 1)}</b>（定值，斜线上所有点都满足）。
+                利润 y = p × u × v，即<b>与绿色矩形面积成正比</b>。
+                拖动定价滑块，矩形沿斜线滑动——当<u>矩形变成正方形</u>（金色虚线框）时面积最大。
+              </div>
+              <div className="flex justify-center">
+                <svg viewBox={`0 0 ${RW} ${RH}`} className="w-full max-w-xs bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                  {/* 网格线 */}
+                  {[0.25, 0.5, 0.75].map((f, i) => (
+                    <g key={i}>
+                      <line x1={RX(f * CC)} y1={RTp} x2={RX(f * CC)} y2={RTp + RPH} stroke="#f1f5f9" strokeWidth={1} />
+                      <line x1={RL} y1={RY(f * CC)} x2={RL + RPW} y2={RY(f * CC)} stroke="#f1f5f9" strokeWidth={1} />
+                    </g>
+                  ))}
+
+                  {/* 坐标轴 */}
+                  <line x1={RL} y1={RTp + RPH} x2={RL + RPW} y2={RTp + RPH} stroke="#334155" strokeWidth={1.5} />
+                  <line x1={RL} y1={RTp} x2={RL} y2={RTp + RPH} stroke="#334155" strokeWidth={1.5} />
+
+                  {/* 刻度标签 */}
+                  <text x={RL} y={RTp + RPH + 14} fontSize={9} fill="#94a3b8" textAnchor="middle">0</text>
+                  <text x={RX(CC)} y={RTp + RPH + 14} fontSize={9} fill="#94a3b8" textAnchor="middle">{fmt(CC, 1)}</text>
+                  <text x={RL - 6} y={RTp + RPH + 3} fontSize={9} fill="#94a3b8" textAnchor="end">0</text>
+                  <text x={RL - 6} y={RTp + 3} fontSize={9} fill="#94a3b8" textAnchor="end">{fmt(CC, 1)}</text>
+
+                  {/* 轴标题 */}
+                  <text x={RL + RPW / 2} y={RH - 12} fontSize={9} fill="#64748b" textAnchor="middle">u = x − m（单件利润）</text>
+                  <text fontSize={9} fill="#64748b" textAnchor="middle" transform={`rotate(-90 14 ${RTp + RPH / 2})`} x={14} y={RTp + RPH / 2}>v = n/p − x（需求因子）</text>
+
+                  {/* 约束线 u + v = C */}
+                  <line x1={RX(0)} y1={RY(CC)} x2={RX(CC)} y2={RY(0)} stroke="#64748b" strokeWidth={2} />
+                  <text x={RX(CC) - 6} y={RY(0) - 8} fontSize={9} fill="#64748b" textAnchor="end" fontWeight="bold">u + v = {fmt(CC, 1)}</text>
+
+                  {/* 最优正方形（金色虚线） */}
+                  <rect x={RX(0)} y={RY(su)} width={RX(su) - RX(0)} height={RY(0) - RY(su)}
+                    fill="#f59e0b" fillOpacity={0.06} stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="5 3" rx={2} />
+                  <text x={(RX(0) + RX(su)) / 2} y={(RY(su) + RY(0)) / 2} fontSize={8} fill="#b45309" textAnchor="middle" fontWeight="bold">最优</text>
+                  <text x={(RX(0) + RX(su)) / 2} y={(RY(su) + RY(0)) / 2 + 12} fontSize={8} fill="#b45309" textAnchor="middle">正方形</text>
+
+                  {/* 当前利润矩形（绿色填充） */}
+                  <rect x={RX(0)} y={RY(vv)} width={RX(uu) - RX(0)} height={RY(0) - RY(vv)}
+                    fill="#22c55e" fillOpacity={0.18} stroke="#16a34a" strokeWidth={2} rx={2} />
+
+                  {/* 宽度标注（u值） */}
+                  <line x1={RX(0)} y1={RY(0) + 22} x2={RX(uu)} y2={RY(0) + 22} stroke="#ef4444" strokeWidth={1} />
+                  <line x1={RX(0)} y1={RY(0) + 18} x2={RX(0)} y2={RY(0) + 26} stroke="#ef4444" strokeWidth={1} />
+                  <line x1={RX(uu)} y1={RY(0) + 18} x2={RX(uu)} y2={RY(0) + 26} stroke="#ef4444" strokeWidth={1} />
+                  <text x={(RX(0) + RX(uu)) / 2} y={RY(0) + 37} fontSize={9} fill="#dc2626" textAnchor="middle" fontWeight="bold">
+                    u = {fmt(uu, 1)}
+                  </text>
+
+                  {/* 高度标注（v值） */}
+                  <text x={RX(uu) + 8} y={(RY(vv) + RY(0)) / 2 + 3} fontSize={9} fill="#2563eb" fontWeight="bold">
+                    v = {fmt(vv, 1)}
+                  </text>
+
+                  {/* 面积标签（矩形内部） */}
+                  <text x={(RX(0) + RX(uu)) / 2} y={(RY(vv) + RY(0)) / 2 - 2} fontSize={11} fill="#15803d" textAnchor="middle" fontWeight="bold">
+                    面积 = {fmt(areaNow, 1)}
+                  </text>
+                  <text x={(RX(0) + RX(uu)) / 2} y={(RY(vv) + RY(0)) / 2 + 12} fontSize={8} fill="#16a34a" textAnchor="middle">
+                    利润 = p × 面积 = {fmt(p * areaNow, 0)}
+                  </text>
+
+                  {/* 当前点 */}
+                  <circle cx={RX(uu)} cy={RY(vv)} r={5} fill="#dc2626" stroke="#fff" strokeWidth={1.5} />
+
+                  {/* 面积比较条 */}
+                  <g transform={`translate(${RL}, ${RH - 4})`}>
+                    <text x={0} y={-2} fontSize={8} fill="#64748b">当前面积 / 最大面积</text>
+                    <rect x={70} y={-7} width={100} height={8} fill="#e2e8f0" rx={2} />
+                    <rect x={70} y={-7} width={Math.max(2, (areaNow / Math.max(areaMax, 0.01)) * 100)} height={8} fill={areaNow >= areaMax * 0.95 ? '#22c55e' : '#f59e0b'} rx={2} />
+                    <text x={178} y={0} fontSize={8} fill="#64748b" fontWeight="bold">{fmt((areaNow / Math.max(areaMax, 0.01)) * 100, 0)}%</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ③ 核心洞察 */}
+        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-xs text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+          <span className="font-bold text-amber-700 dark:text-amber-300">💡 直觉理解：</span>
+          涨价让<b className="text-red-500">每件多赚</b>但<b className="text-blue-500">卖得更少</b>，
+          降价则相反——两者互相拉扯，这就是利润曲线"先涨后跌"的根本原因。
+          <b className="text-green-600 dark:text-green-400">最优定价在"平衡点"</b>：
+          当 u = v（矩形为正方形）时面积最大，对应顶点 x* = {fmt(xStar, 1)} 元，最大利润 y_max = {fmt(yMax, 0)} 元。
+        </div>
+      </div>
+
       {/* 配方法推导 */}
       <div className="mt-2">
         <div className="flex items-center gap-2 mb-2">
