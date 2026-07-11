@@ -409,7 +409,7 @@ const QuadraticTab: React.FC = () => {
                 令 <b>u</b> = x − m（单件利润），<b>v</b> = n/p − x（需求因子），
                 则 <b>u + v = {fmt(CC, 1)}</b>（定值，斜线上所有点都满足）。
                 利润 y = p × u × v，即<b>与绿色矩形面积成正比</b>。
-                拖动定价滑块，矩形沿斜线滑动——当<u>矩形变成正方形</u>（金色虚线框）时面积最大。
+                拖动下方定价滑块，矩形沿斜线滑动——当<u>矩形变成正方形</u>（金色虚线框）时面积最大。
               </div>
               <div className="flex justify-center">
                 <svg viewBox={`0 0 ${RW} ${RH}`} className="w-full max-w-xs bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -481,6 +481,22 @@ const QuadraticTab: React.FC = () => {
                     <text x={178} y={0} fontSize={8} fill="#64748b" fontWeight="bold">{fmt((areaNow / Math.max(areaMax, 0.01)) * 100, 0)}%</text>
                   </g>
                 </svg>
+              </div>
+
+              {/* 就地定价滑块 */}
+              <div className="mt-2 px-1">
+                <label className="text-xs font-semibold flex items-center justify-between mb-1.5 text-orange-600 dark:text-orange-400">
+                  <span>拖动调整定价 x</span>
+                  <span className="font-mono font-bold text-sm">
+                    x = {fmt(xClamped, 1)} 元　|　u = {fmt(uu, 1)}, v = {fmt(vv, 1)}
+                  </span>
+                </label>
+                <Slider value={[xClamped]} min={xLo} max={xHi} step={0.5} onValueChange={(v) => setX(v[0])} />
+                <div className="flex justify-between mt-1 text-[10px] text-gray-400 dark:text-gray-500">
+                  <span>← 低价：u 小 v 大（薄利多销）</span>
+                  <span className="text-amber-500 font-bold">平衡点 x* = {fmt((xLo + xHi) / 2, 1)}</span>
+                  <span>高价：u 大 v 小（厚利少销）→</span>
+                </div>
               </div>
             </div>
           );
