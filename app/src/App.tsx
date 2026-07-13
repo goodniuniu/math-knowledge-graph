@@ -1,15 +1,17 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { useTheme } from 'next-themes';
 import { books, graphConfigs, type KnowledgeNode } from '@/data/knowledgeData';
-import FunctionCanvas from '@/components/graph/FunctionCanvas';
-import GraphControls from '@/components/graph/GraphControls';
 import KnowledgeTree from '@/components/panels/KnowledgeTree';
 import KnowledgeDetail from '@/components/panels/KnowledgeDetail';
 import FormulaPanel from '@/components/panels/FormulaPanel';
 import InductionFormulaPanel from '@/components/panels/InductionFormulaPanel';
-import KnowledgeGraph from '@/components/graph/KnowledgeGraph';
-import QuizMode from '@/components/panels/QuizMode';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// 懒加载大体积视图组件
+const FunctionCanvas = lazy(() => import('@/components/graph/FunctionCanvas'));
+const GraphControls = lazy(() => import('@/components/graph/GraphControls'));
+const KnowledgeGraph = lazy(() => import('@/components/graph/KnowledgeGraph'));
+const QuizMode = lazy(() => import('@/components/panels/QuizMode'));
 import { Button } from '@/components/ui/button';
 import {
   BookOpen,
@@ -225,14 +227,18 @@ function App() {
                     所有57个知识点之间的先修、相关和应用关系可视化。点击节点查看详情，拖拽节点调整布局。
                   </p>
                 </div>
-                <KnowledgeGraph
-                  selectedNodeId={selectedNode?.id || null}
-                  onSelectNode={handleSelectNode}
-                />
+                <Suspense fallback={<div className="h-[520px] flex items-center justify-center text-gray-400">加载知识图谱中…</div>}>
+                  <KnowledgeGraph
+                    selectedNodeId={selectedNode?.id || null}
+                    onSelectNode={handleSelectNode}
+                  />
+                </Suspense>
               </div>
             ) : viewMode === 'quiz' ? (
               /* Quiz Mode */
-              <QuizMode />
+              <Suspense fallback={<div className="h-96 flex items-center justify-center text-gray-400">加载练习模式中…</div>}>
+                <QuizMode />
+              </Suspense>
             ) : selectedNode ? (
               /* Detail View */
               <div className="max-w-4xl mx-auto space-y-4">
@@ -251,23 +257,27 @@ function App() {
                       </div>
 
                       <div className="flex justify-center">
-                        <FunctionCanvas
-                          graphType={selectedNode.graphType || 'none'}
-                          params={params}
-                          width={700}
-                          height={420}
-                        />
+                        <Suspense fallback={<div className="h-[420px] flex items-center justify-center text-gray-400">加载图形中…</div>}>
+                          <FunctionCanvas
+                            graphType={selectedNode.graphType || 'none'}
+                            params={params}
+                            width={700}
+                            height={420}
+                          />
+                        </Suspense>
                       </div>
                     </div>
 
                     {/* Controls */}
                     <div className="max-w-xl mx-auto">
-                      <GraphControls
-                        graphType={selectedNode.graphType!}
-                        params={params}
-                        onParamChange={handleParamChange}
-                        onReset={handleReset}
-                      />
+                      <Suspense fallback={null}>
+                        <GraphControls
+                          graphType={selectedNode.graphType!}
+                          params={params}
+                          onParamChange={handleParamChange}
+                          onReset={handleReset}
+                        />
+                      </Suspense>
                     </div>
                   </>
                 )}

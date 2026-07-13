@@ -754,3 +754,36 @@ export const LogicVisual: React.FC<{ mode: 'condition' | 'quantifier' | 'inequal
     </div>
   );
 };
+
+type ExtraVisualsMode =
+  | 'complex-basic' | 'complex-trig'
+  | 'geometry-position' | 'geometry-parallel' | 'geometry-perp'
+  | 'stats-histogram' | 'stats-scatter' | 'stats-regression' | 'stats-contingency'
+  | 'coord-line' | 'coord-circle' | 'coord-angle'
+  | 'pascal' | 'combination'
+  | 'logic-condition' | 'logic-quantifier' | 'logic-inequality';
+
+const ExtraVisuals: React.FC<{ mode: ExtraVisualsMode }> = ({ mode }) => {
+  switch (mode) {
+    case 'complex-basic': return <ComplexPlane mode="basic" />;
+    case 'complex-trig': return <ComplexPlane mode="trig" />;
+    case 'geometry-position': return <Geometry3D mode="position" />;
+    case 'geometry-parallel': return <Geometry3D mode="parallel" />;
+    case 'geometry-perp': return <Geometry3D mode="perpendicular" />;
+    case 'stats-histogram': return <StatsVisual mode="histogram" />;
+    case 'stats-scatter': return <StatsVisual mode="scatter" />;
+    case 'stats-regression': return <StatsVisual mode="regression" />;
+    case 'stats-contingency': return <StatsVisual mode="contingency" />;
+    case 'coord-line': return <CoordinateGraph mode="line" />;
+    case 'coord-circle': return <CoordinateGraph mode="circle" />;
+    case 'coord-angle': return <CoordinateGraph mode="angle" />;
+    case 'pascal': return <PascalTriangle mode="pascal" />;
+    case 'combination': return <PascalTriangle mode="combination" />;
+    case 'logic-condition': return <LogicVisual mode="condition" />;
+    case 'logic-quantifier': return <LogicVisual mode="quantifier" />;
+    case 'logic-inequality': return <LogicVisual mode="inequality" />;
+    default: return null;
+  }
+};
+
+export default ExtraVisuals;

@@ -223,3 +223,11 @@ export const DerivativeTangent: React.FC = () => {
     </div>
   );
 };
+
+// 默认导出：根据 variant 渲染对应组件，用于懒加载
+const InequalityVisual: React.FC<{ variant: 'mean' | 'derivative' }> = ({ variant }) => {
+  if (variant === 'mean') return <MeanInequality />;
+  return <DerivativeTangent />;
+};
+
+export default InequalityVisual;

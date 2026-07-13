@@ -536,3 +536,17 @@ export const DerivativeCalculator: React.FC = () => {
     </div>
   );
 };
+
+type EnhancedVisuals1Mode = 'function-machine' | 'properties' | 'zero-hunter' | 'derivative';
+
+const EnhancedVisuals1: React.FC<{ mode: EnhancedVisuals1Mode }> = ({ mode }) => {
+  switch (mode) {
+    case 'function-machine': return <FunctionMachine />;
+    case 'properties': return <FunctionProperties />;
+    case 'zero-hunter': return <ZeroHunter />;
+    case 'derivative': return <DerivativeCalculator />;
+    default: return null;
+  }
+};
+
+export default EnhancedVisuals1;

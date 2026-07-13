@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useTheme } from 'next-themes';
 import { books, type KnowledgeNode } from '@/data/knowledgeData';
 import { knowledgeEdges, categoryColors } from '@/data/knowledgeGraph';
 import { Slider } from '@/components/ui/slider';
@@ -22,10 +23,26 @@ interface KnowledgeGraphProps {
   onSelectNode: (node: KnowledgeNode) => void;
 }
 
-const W = 760;
-const H = 520;
+// Theme-aware color palette
+const getThemeColors = (isDark: boolean) => ({
+  bg: isDark ? '#0f172a' : '#fafafa',
+  nodeLabel: '#fff',
+  titleBg: isDark ? 'rgba(30,41,59,0.95)' : 'rgba(30,41,59,0.9)',
+  titleText: '#fff',
+  borderColor: isDark ? '#334155' : '#e5e7eb',
+  // edge colors
+  prereq: isDark ? 'rgba(96,165,250,0.55)' : 'rgba(59,130,246,0.6)',
+  prereqDim: isDark ? 'rgba(96,165,250,0.12)' : 'rgba(59,130,246,0.15)',
+  related: isDark ? 'rgba(167,139,250,0.45)' : 'rgba(139,92,246,0.5)',
+  relatedDim: isDark ? 'rgba(167,139,250,0.08)' : 'rgba(139,92,246,0.1)',
+  applied: isDark ? 'rgba(52,211,153,0.45)' : 'rgba(16,185,129,0.5)',
+  appliedDim: isDark ? 'rgba(52,211,153,0.08)' : 'rgba(16,185,129,0.1)',
+  // selected node border
+  selectedBorder: isDark ? '#e2e8f0' : '#1e293b',
+});
 
 const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelectNode }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -39,13 +56,53 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
   const animRef = useRef<number>(0);
   const initializedRef = useRef(false);
 
+  // Simulation settling: stop heavy physics after settling, keep lightweight redraw
+  const settledRef = useRef(false);
+  const settleFrameRef = useRef(0);
+
+  // Responsive dimensions
+  const [dims, setDims] = useState({ w: 760, h: 520 });
+  const dimsRef = useRef(dims);
+  dimsRef.current = dims;
+
+  // Theme
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const colors = getThemeColors(isDark);
+  const isDarkRef = useRef(isDark);
+  isDarkRef.current = isDark;
+
+  // Hover/zoom/pan state in refs for the animation loop (avoids re-creating loop on every state change)
+  const stateRef = useRef({ zoom, pan, hoveredNode, selectedNodeId, dragNode, linkStrength });
+  stateRef.current = { zoom, pan, hoveredNode, selectedNodeId, dragNode, linkStrength };
+
+  // Responsive: observe container width
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const update = () => {
+      const w = container.clientWidth;
+      // Keep a sensible aspect ratio; clamp width
+      const clampedW = Math.max(320, Math.min(w, 1000));
+      const h = Math.round(clampedW * 0.65);
+      setDims(prev => {
+        // Only update if changed significantly (>10px)
+        if (Math.abs(prev.w - clampedW) < 10 && Math.abs(prev.h - h) < 10) return prev;
+        return { w: clampedW, h };
+      });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, []);
+
   // Initialize nodes
   const initNodes = useCallback(() => {
-    if (initializedRef.current) return;
     initializedRef.current = true;
-
+    const { w: W, h: H } = dimsRef.current;
     const nodes: GraphNode[] = [];
-    // Group by book and chapter for initial positioning
+
     const bookCenters: Record<string, { x: number; y: number }> = {
       'bx1': { x: W * 0.25, y: H * 0.3 },
       'bx2': { x: W * 0.7, y: H * 0.3 },
@@ -75,13 +132,17 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
       });
     });
     nodesRef.current = nodes;
+    settledRef.current = false;
+    settleFrameRef.current = 0;
   }, []);
 
-  // Force simulation step
+  // Force simulation step — pure physics, no React state reads
   const simulate = useCallback(() => {
     const nodes = nodesRef.current;
     if (nodes.length === 0) return;
 
+    const { w: W, h: H } = dimsRef.current;
+    const { linkStrength: ls, dragNode: dn } = stateRef.current;
     const centerX = W / 2;
     const centerY = H / 2;
 
@@ -112,7 +173,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
       const dy = t.y - s.y;
       const dist = Math.sqrt(dx * dx + dy * dy) + 0.01;
       const targetDist = 80;
-      const force = (dist - targetDist) * linkStrength;
+      const force = (dist - targetDist) * ls;
       const fx = (dx / dist) * force;
       const fy = (dy / dist) * force;
       s.vx += fx;
@@ -130,41 +191,59 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
     });
 
     // Apply velocity with damping
+    let maxVel = 0;
     nodes.forEach(node => {
-      if (node.id === dragNode) return;
+      if (node.id === dn) return;
       node.vx *= 0.85;
       node.vy *= 0.85;
       node.x += node.vx;
       node.y += node.vy;
+      maxVel = Math.max(maxVel, Math.abs(node.vx), Math.abs(node.vy));
 
       // Keep in bounds
       const margin = 30;
       node.x = Math.max(margin, Math.min(W - margin, node.x));
       node.y = Math.max(margin, Math.min(H - margin, node.y));
     });
-  }, [linkStrength, dragNode]);
 
-  // Draw the graph
+    // Settle detection: when max velocity drops below threshold for sustained frames
+    if (maxVel > 0.15) {
+      settleFrameRef.current = 0;
+    } else {
+      settleFrameRef.current++;
+      if (settleFrameRef.current > 30) {
+        settledRef.current = true;
+      }
+    }
+  }, []);
+
+  // Draw the graph — reads from refs + current React state for hover/select
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const { w: W, h: H } = dimsRef.current;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     canvas.style.width = `${W}px`;
     canvas.style.height = `${H}px`;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 
+    const c = getThemeColors(isDarkRef.current);
+
     // Background
-    ctx.fillStyle = '#fafafa';
+    ctx.fillStyle = c.bg;
     ctx.fillRect(0, 0, W, H);
 
+    const { zoom: z, pan: p, hoveredNode: hn, selectedNodeId: sn } = stateRef.current;
+
     ctx.save();
-    ctx.translate(pan.x, pan.y);
-    ctx.scale(zoom, zoom);
+    ctx.translate(p.x, p.y);
+    ctx.scale(z, z);
 
     const nodes = nodesRef.current;
     const nodeMap = new Map(nodes.map(n => [n.id, n]));
@@ -175,17 +254,17 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
       const t = nodeMap.get(edge.target);
       if (!s || !t) return;
 
-      const isHighlighted = hoveredNode === edge.source || hoveredNode === edge.target ||
-                            selectedNodeId === edge.source || selectedNodeId === edge.target;
+      const isHighlighted = hn === edge.source || hn === edge.target ||
+                            sn === edge.source || sn === edge.target;
 
       if (edge.type === 'prerequisite') {
-        ctx.strokeStyle = isHighlighted ? 'rgba(59,130,246,0.6)' : 'rgba(59,130,246,0.15)';
+        ctx.strokeStyle = isHighlighted ? c.prereq : c.prereqDim;
         ctx.lineWidth = isHighlighted ? 2 : 1;
       } else if (edge.type === 'related') {
-        ctx.strokeStyle = isHighlighted ? 'rgba(139,92,246,0.5)' : 'rgba(139,92,246,0.1)';
+        ctx.strokeStyle = isHighlighted ? c.related : c.relatedDim;
         ctx.lineWidth = isHighlighted ? 1.5 : 0.8;
       } else {
-        ctx.strokeStyle = isHighlighted ? 'rgba(16,185,129,0.5)' : 'rgba(16,185,129,0.1)';
+        ctx.strokeStyle = isHighlighted ? c.applied : c.appliedDim;
         ctx.lineWidth = isHighlighted ? 1.5 : 0.8;
       }
 
@@ -212,8 +291,8 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
 
     // Draw nodes
     nodes.forEach(node => {
-      const isSelected = node.id === selectedNodeId;
-      const isHovered = node.id === hoveredNode;
+      const isSelected = node.id === sn;
+      const isHovered = node.id === hn;
       const color = categoryColors[node.category] || '#6b7280';
 
       // Glow for selected/hovered
@@ -229,12 +308,12 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
       ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
       ctx.fillStyle = isSelected ? color : (isHovered ? color + 'DD' : color + 'AA');
       ctx.fill();
-      ctx.strokeStyle = isSelected ? '#1e293b' : color;
+      ctx.strokeStyle = isSelected ? c.selectedBorder : color;
       ctx.lineWidth = isSelected ? 2.5 : 1.5;
       ctx.stroke();
 
       // Node ID label
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = c.nodeLabel;
       ctx.font = 'bold 9px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -248,9 +327,9 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
         const text = node.title;
         const metrics = ctx.measureText(text);
         const padding = 4;
-        ctx.fillStyle = 'rgba(30,41,59,0.9)';
+        ctx.fillStyle = c.titleBg;
         ctx.fillRect(node.x - metrics.width / 2 - padding, node.y - node.radius - 22, metrics.width + padding * 2, 16);
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = c.titleText;
         ctx.fillText(text, node.x, node.y - node.radius - 8);
       }
     });
@@ -258,32 +337,39 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
     ctx.restore();
     ctx.textAlign = 'start';
     ctx.textBaseline = 'alphabetic';
-  }, [hoveredNode, selectedNodeId, zoom, pan]);
+  }, []);
 
-  // Animation loop
+  // === Animation loop: only ONE effect, created once on mount ===
   useEffect(() => {
     initNodes();
-    let frame = 0;
+
     const animate = () => {
-      simulate();
-      draw();
-      frame++;
-      // Stop after settling
-      if (frame < 300) {
-        animRef.current = requestAnimationFrame(animate);
-      } else {
-        // Continue at lower frequency for hover updates
-        animRef.current = requestAnimationFrame(animate);
+      // Only run physics if not settled, or if user is dragging/panning/zooming
+      const s = stateRef.current;
+      const needsPhysics = !settledRef.current || s.dragNode !== null;
+
+      if (needsPhysics) {
+        simulate();
       }
+      draw();
+      animRef.current = requestAnimationFrame(animate);
     };
     animRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animRef.current);
-  }, [simulate, draw, initNodes]);
 
-  // Restart simulation when link strength changes
+    return () => cancelAnimationFrame(animRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Re-init when dimensions change significantly (window resize)
   useEffect(() => {
-    // Just let the existing loop pick up the new strength
-  }, [linkStrength]);
+    if (!initializedRef.current) return;
+    // Just reposition nodes proportionally — don't re-randomize
+    const nodes = nodesRef.current;
+    if (nodes.length === 0) return;
+    // Re-trigger physics settling
+    settledRef.current = false;
+    settleFrameRef.current = 0;
+  }, [dims]);
 
   // Get node at screen position
   const getNodeAt = useCallback((sx: number, sy: number): GraphNode | null => {
@@ -308,6 +394,9 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
     if (node) {
       setDragNode(node.id);
       setIsDragging(true);
+      // Wake up physics when dragging
+      settledRef.current = false;
+      settleFrameRef.current = 0;
     } else {
       setIsPanning(true);
     }
@@ -349,7 +438,6 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
     const sy = e.clientY - rect.top;
     const node = getNodeAt(sx, sy);
     if (node) {
-      // Find full node data
       for (const book of books) {
         for (const chapter of book.chapters) {
           const found = chapter.nodes.find(n => n.id === node.id);
@@ -371,17 +459,16 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
   const resetView = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
-    // Re-run simulation
     initializedRef.current = false;
     nodesRef.current = [];
     initNodes();
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm transition-colors">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-          <Network className="w-4 h-4 text-purple-600" />
+        <h3 className="font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+          <Network className="w-4 h-4 text-purple-600 dark:text-purple-400" />
           知识图谱网络
         </h3>
         <div className="flex items-center gap-2">
@@ -397,7 +484,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
         </div>
       </div>
 
-      <div className="flex justify-center">
+      <div ref={containerRef} className="flex justify-center w-full">
         <canvas
           ref={canvasRef}
           onMouseDown={handleMouseDown}
@@ -406,21 +493,26 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
           onMouseLeave={handleMouseUp}
           onClick={handleClick}
           onWheel={handleWheel}
-          style={{ borderRadius: '8px', border: '1px solid #e5e7eb', cursor: 'default' }}
+          style={{ borderRadius: '8px', border: `1px solid ${colors.borderColor}`, cursor: 'default', maxWidth: '100%' }}
         />
       </div>
 
       {/* Link strength slider */}
       <div className="mt-3 max-w-md mx-auto space-y-1">
-        <label className="text-xs font-medium text-gray-700">
+        <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
           关联强度: {linkStrength.toFixed(2)}
         </label>
         <Slider value={[linkStrength * 100]} min={5} max={80} step={5}
-          onValueChange={(v) => setLinkStrength(v[0] / 100)} />
+          onValueChange={(v) => {
+            setLinkStrength(v[0] / 100);
+            // Re-trigger settling physics on strength change
+            settledRef.current = false;
+            settleFrameRef.current = 0;
+          }} />
       </div>
 
       {/* Legend */}
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-600">
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-600 dark:text-gray-400">
         <div className="flex items-center gap-1.5">
           <div className="w-6 h-0.5 bg-blue-500" style={{ opacity: 0.6 }}></div>
           <span>先修关系</span>
@@ -433,7 +525,7 @@ const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ selectedNodeId, onSelec
           <div className="w-6 h-0.5 bg-green-500" style={{ opacity: 0.5 }}></div>
           <span>应用关系</span>
         </div>
-        <span className="text-gray-400 ml-2">提示：拖拽节点可调整位置，滚轮缩放</span>
+        <span className="text-gray-400 dark:text-gray-500 ml-2">提示：拖拽节点可调整位置，滚轮缩放</span>
       </div>
     </div>
   );

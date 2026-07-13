@@ -1,21 +1,33 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { nodeContent } from '@/data/nodeContent';
 import { getNodeDemo } from '@/data/demoConfig';
 import type { KnowledgeNode } from '@/data/knowledgeData';
 import Math from '@/components/Math';
-import VectorCanvas from '@/components/graph/VectorCanvas';
-import VennDiagram from '@/components/graph/VennDiagram';
-import DistributionChart from '@/components/graph/DistributionChart';
-import { MeanInequality, DerivativeTangent } from '@/components/graph/InequalityVisual';
-import TrigIdentityVisual from '@/components/graph/TrigIdentityVisual';
-import TrigDerivationVisual from '@/components/graph/TrigDerivationVisual';
-import SimpleHarmonicMotion from '@/components/graph/SimpleHarmonicMotion';
-import { ComplexPlane, Geometry3D, StatsVisual, CoordinateGraph, PascalTriangle, LogicVisual } from '@/components/graph/ExtraVisuals';
-import FunctionApplicationVisual from '@/components/graph/FunctionApplicationVisual';
-import { FunctionMachine, FunctionProperties, ZeroHunter, DerivativeCalculator } from '@/components/graph/EnhancedVisuals1';
-import { QuadraticTrinity, PowerFunctionFamily, BacteriaGrowth, RadioactiveDecay, LogScaleExperience, InverseFunctionMirror } from '@/components/graph/EnhancedVisuals2';
-import { UnitCircleExplorer, SymmetryMagic, FivePointDrawing, WaveSynthesizer, EllipseDrawing, HyperbolaExplorer, ParabolaSimulator, ArithmeticSequence, GeometricSequence } from '@/components/graph/EnhancedVisuals3';
 import { BookOpen, Lightbulb, Sigma, Wrench, Eye, GraduationCap } from 'lucide-react';
+
+// 懒加载重量级可视化组件，按需加载以减小首屏包体积
+const VectorCanvas = lazy(() => import('@/components/graph/VectorCanvas'));
+const VennDiagram = lazy(() => import('@/components/graph/VennDiagram'));
+const DistributionChart = lazy(() => import('@/components/graph/DistributionChart'));
+const InequalityVisual = lazy(() => import('@/components/graph/InequalityVisual'));
+const TrigIdentityVisual = lazy(() => import('@/components/graph/TrigIdentityVisual'));
+const TrigDerivationVisual = lazy(() => import('@/components/graph/TrigDerivationVisual'));
+const SimpleHarmonicMotion = lazy(() => import('@/components/graph/SimpleHarmonicMotion'));
+const ExtraVisuals = lazy(() => import('@/components/graph/ExtraVisuals'));
+const FunctionApplicationVisual = lazy(() => import('@/components/graph/FunctionApplicationVisual'));
+const EnhancedVisuals1 = lazy(() => import('@/components/graph/EnhancedVisuals1'));
+const EnhancedVisuals2 = lazy(() => import('@/components/graph/EnhancedVisuals2'));
+const EnhancedVisuals3 = lazy(() => import('@/components/graph/EnhancedVisuals3'));
+
+// 懒加载时的占位骨架屏
+const DemoLoading = () => (
+  <div className="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 animate-pulse">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-10 h-10 rounded-full border-3 border-purple-200 border-t-purple-600 animate-spin" style={{ borderWidth: '3px', borderTopWidth: '3px' }} />
+      <span className="text-sm text-gray-400 dark:text-gray-500">加载演示中…</span>
+    </div>
+  </div>
+);
 
 interface KnowledgeDetailProps {
   node: KnowledgeNode;
@@ -44,99 +56,99 @@ const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
       case 'dist-binomial':
         return <DistributionChart type="binomial" />;
       case 'inequality-mean':
-        return <MeanInequality />;
+        return <InequalityVisual variant="mean" />;
       case 'derivative-tangent':
-        return <DerivativeTangent />;
+        return <InequalityVisual variant="derivative" />;
       case 'trig-identity':
         return <TrigIdentityVisual />;
       case 'simple-harmonic':
         return <SimpleHarmonicMotion />;
       // 复数
       case 'complex-basic':
-        return <ComplexPlane mode="basic" />;
+        return <ExtraVisuals mode="complex-basic" />;
       case 'complex-trig':
-        return <ComplexPlane mode="trig" />;
+        return <ExtraVisuals mode="complex-trig" />;
       // 立体几何
       case 'geometry-position':
-        return <Geometry3D mode="position" />;
+        return <ExtraVisuals mode="geometry-position" />;
       case 'geometry-parallel':
-        return <Geometry3D mode="parallel" />;
+        return <ExtraVisuals mode="geometry-parallel" />;
       case 'geometry-perp':
-        return <Geometry3D mode="perpendicular" />;
+        return <ExtraVisuals mode="geometry-perp" />;
       // 统计
       case 'stats-histogram':
-        return <StatsVisual mode="histogram" />;
+        return <ExtraVisuals mode="stats-histogram" />;
       case 'stats-scatter':
-        return <StatsVisual mode="scatter" />;
+        return <ExtraVisuals mode="stats-scatter" />;
       case 'stats-regression':
-        return <StatsVisual mode="regression" />;
+        return <ExtraVisuals mode="stats-regression" />;
       case 'stats-contingency':
-        return <StatsVisual mode="contingency" />;
+        return <ExtraVisuals mode="stats-contingency" />;
       // 坐标几何
       case 'coord-line':
-        return <CoordinateGraph mode="line" />;
+        return <ExtraVisuals mode="coord-line" />;
       case 'coord-circle':
-        return <CoordinateGraph mode="circle" />;
+        return <ExtraVisuals mode="coord-circle" />;
       case 'coord-angle':
-        return <CoordinateGraph mode="angle" />;
+        return <ExtraVisuals mode="coord-angle" />;
       // 排列组合
       case 'pascal':
-        return <PascalTriangle mode="pascal" />;
+        return <ExtraVisuals mode="pascal" />;
       case 'combination':
-        return <PascalTriangle mode="combination" />;
+        return <ExtraVisuals mode="combination" />;
       // 逻辑
       case 'logic-condition':
-        return <LogicVisual mode="condition" />;
+        return <ExtraVisuals mode="logic-condition" />;
       case 'logic-quantifier':
-        return <LogicVisual mode="quantifier" />;
+        return <ExtraVisuals mode="logic-quantifier" />;
       case 'logic-inequality':
-        return <LogicVisual mode="inequality" />;
+        return <ExtraVisuals mode="logic-inequality" />;
       // 函数应用
       case 'function-application':
         return <FunctionApplicationVisual />;
       // 增强可视化 — P0（无基础图形 → 全新交互）
       case 'enhanced-function-machine':
-        return <FunctionMachine />;
+        return <EnhancedVisuals1 mode="function-machine" />;
       case 'enhanced-properties':
-        return <FunctionProperties />;
+        return <EnhancedVisuals1 mode="properties" />;
       case 'enhanced-zero-hunter':
-        return <ZeroHunter />;
+        return <EnhancedVisuals1 mode="zero-hunter" />;
       case 'enhanced-derivative':
-        return <DerivativeCalculator />;
+        return <EnhancedVisuals1 mode="derivative" />;
       // 增强可视化 — 函数系列
       case 'enhanced-quadratic':
-        return <QuadraticTrinity />;
+        return <EnhancedVisuals2 mode="quadratic" />;
       case 'enhanced-power':
-        return <PowerFunctionFamily />;
+        return <EnhancedVisuals2 mode="power" />;
       case 'enhanced-exponential':
-        return <BacteriaGrowth />;
+        return <EnhancedVisuals2 mode="exponential" />;
       case 'enhanced-decay':
-        return <RadioactiveDecay />;
+        return <EnhancedVisuals2 mode="decay" />;
       case 'enhanced-log-scale':
-        return <LogScaleExperience />;
+        return <EnhancedVisuals2 mode="log-scale" />;
       case 'enhanced-inverse':
-        return <InverseFunctionMirror />;
+        return <EnhancedVisuals2 mode="inverse" />;
       // 增强可视化 — 三角函数
       case 'enhanced-unit-circle':
-        return <UnitCircleExplorer />;
+        return <EnhancedVisuals3 mode="unit-circle" />;
       case 'enhanced-symmetry':
-        return <SymmetryMagic />;
+        return <EnhancedVisuals3 mode="symmetry" />;
       case 'enhanced-five-point':
-        return <FivePointDrawing />;
+        return <EnhancedVisuals3 mode="five-point" />;
       case 'enhanced-wave':
-        return <WaveSynthesizer />;
+        return <EnhancedVisuals3 mode="wave" />;
       // 增强可视化 — 圆锥曲线
       case 'enhanced-ellipse':
-        return <EllipseDrawing />;
+        return <EnhancedVisuals3 mode="ellipse" />;
       case 'enhanced-hyperbola':
-        return <HyperbolaExplorer />;
+        return <EnhancedVisuals3 mode="hyperbola" />;
       case 'enhanced-parabola':
-        return <ParabolaSimulator />;
+        return <EnhancedVisuals3 mode="parabola" />;
       // 增强可视化 — 数列
       case 'enhanced-arithmetic':
-        return <ArithmeticSequence />;
+        return <EnhancedVisuals3 mode="arithmetic" />;
       case 'enhanced-geometric':
-        return <GeometricSequence />;
+        return <EnhancedVisuals3 mode="geometric" />;
       case 'number-line':
         return null; // 已被 enhanced-quadratic 替代
       default:
@@ -163,7 +175,9 @@ const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
             <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-sm">形象化演示</h3>
             <span className="text-xs text-gray-400 dark:text-gray-500">拖动滑块或点击按钮进行交互</span>
           </div>
-          {renderDemo()}
+          <Suspense fallback={<DemoLoading />}>
+            {renderDemo()}
+          </Suspense>
         </section>
       )}
 
@@ -229,7 +243,11 @@ const KnowledgeDetail: React.FC<KnowledgeDetailProps> = ({ node }) => {
           </div>
 
           {/* 交互式推导可视化（仅三角恒等变换节点） */}
-          {node.id === '22' && <TrigDerivationVisual />}
+          {node.id === '22' && (
+            <Suspense fallback={<DemoLoading />}>
+              <TrigDerivationVisual />
+            </Suspense>
+          )}
 
           {/* 文字推导步骤 */}
           <div className="mt-3 space-y-0">

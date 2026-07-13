@@ -950,3 +950,25 @@ export const GeometricSequence: React.FC = () => {
     </div>
   );
 };
+
+type EnhancedVisuals3Mode =
+  | 'unit-circle' | 'symmetry' | 'five-point' | 'wave'
+  | 'ellipse' | 'hyperbola' | 'parabola'
+  | 'arithmetic' | 'geometric';
+
+const EnhancedVisuals3: React.FC<{ mode: EnhancedVisuals3Mode }> = ({ mode }) => {
+  switch (mode) {
+    case 'unit-circle': return <UnitCircleExplorer />;
+    case 'symmetry': return <SymmetryMagic />;
+    case 'five-point': return <FivePointDrawing />;
+    case 'wave': return <WaveSynthesizer />;
+    case 'ellipse': return <EllipseDrawing />;
+    case 'hyperbola': return <HyperbolaExplorer />;
+    case 'parabola': return <ParabolaSimulator />;
+    case 'arithmetic': return <ArithmeticSequence />;
+    case 'geometric': return <GeometricSequence />;
+    default: return null;
+  }
+};
+
+export default EnhancedVisuals3;

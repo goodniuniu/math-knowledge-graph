@@ -611,3 +611,19 @@ export const InverseFunctionMirror: React.FC = () => {
     </div>
   );
 };
+
+type EnhancedVisuals2Mode = 'quadratic' | 'power' | 'exponential' | 'decay' | 'log-scale' | 'inverse';
+
+const EnhancedVisuals2: React.FC<{ mode: EnhancedVisuals2Mode }> = ({ mode }) => {
+  switch (mode) {
+    case 'quadratic': return <QuadraticTrinity />;
+    case 'power': return <PowerFunctionFamily />;
+    case 'exponential': return <BacteriaGrowth />;
+    case 'decay': return <RadioactiveDecay />;
+    case 'log-scale': return <LogScaleExperience />;
+    case 'inverse': return <InverseFunctionMirror />;
+    default: return null;
+  }
+};
+
+export default EnhancedVisuals2;
