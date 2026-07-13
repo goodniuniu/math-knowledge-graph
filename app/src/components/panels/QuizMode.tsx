@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { importantFormulas, getAllNodes } from '@/data/knowledgeData';
 import { nodeContent } from '@/data/nodeContent';
 import MathTex from '@/components/Math';
@@ -26,6 +26,22 @@ function shuffle<T>(arr: T[]): T[] {
     [result[i], result[j]] = [result[j], result[i]];
   }
   return result;
+}
+
+// ---- 错题本 & 历史最佳成绩（localStorage 持久化，由 WorkBuddy 混元Hy3 新增） ----
+const BEST_KEY = 'mkg_best_score';
+const MISTAKE_KEY = 'mkg_mistakes';
+
+function loadMistakes(): Question[] {
+  try {
+    const raw = localStorage.getItem(MISTAKE_KEY);
+    return raw ? (JSON.parse(raw) as Question[]) : [];
+  } catch {
+    return [];
+  }
+}
+function saveMistakes(list: Question[]) {
+  try { localStorage.setItem(MISTAKE_KEY, JSON.stringify(list)); } catch { /* 忽略写入异常 */ }
 }
 
 // Generate questions from knowledge data
@@ -153,7 +169,7 @@ function generateQuestions(count: number = 10): Question[] {
 }
 
 const QuizMode: React.FC = () => {
-  const [phase, setPhase] = useState<'setup' | 'quiz' | 'results'>('setup');
+  const [phase, setPhase] = useState<'setup' | 'quiz' | 'results' | 'mistakes'>('setup');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -161,6 +177,32 @@ const QuizMode: React.FC = () => {
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [questionCount, setQuestionCount] = useState(10);
+  const [bestScore, setBestScore] = useState<number | null>(null);
+  const [mistakes, setMistakes] = useState<Question[]>([]);
+
+  // 初始化：读取历史最佳与错题本
+  useEffect(() => {
+    const b = Number(localStorage.getItem(BEST_KEY));
+    setBestScore(b > 0 ? b : null);
+    setMistakes(loadMistakes());
+  }, []);
+
+  // 错题本变化时写回本地存储
+  useEffect(() => {
+    saveMistakes(mistakes);
+  }, [mistakes]);
+
+  // 练习结束时更新最佳成绩
+  useEffect(() => {
+    if (phase === 'results' && questions.length > 0) {
+      const pct = Math.round((score / questions.length) * 100);
+      const prev = Number(localStorage.getItem(BEST_KEY) || 0);
+      if (pct > prev) {
+        localStorage.setItem(BEST_KEY, String(pct));
+        setBestScore(pct);
+      }
+    }
+  }, [phase, score, questions]);
 
   const startQuiz = useCallback(() => {
     setQuestions(generateQuestions(questionCount));
@@ -179,6 +221,11 @@ const QuizMode: React.FC = () => {
     const isCorrect = index === questions[currentIndex].correctIndex;
     if (isCorrect) setScore(s => s + 1);
     setAnswers(prev => [...prev, isCorrect]);
+    // 答错的题自动收入错题本（按题干去重）
+    if (!isCorrect) {
+      const wrong = questions[currentIndex];
+      setMistakes(prev => prev.some(m => m.question === wrong.question) ? prev : [...prev, wrong]);
+    }
   };
 
   const handleNext = () => {
@@ -251,6 +298,25 @@ const QuizMode: React.FC = () => {
                   <div className="text-xs text-gray-400">{type.desc}</div>
                 </div>
               ))}
+            </div>
+
+            {/* 历史最佳 & 错题本（WorkBuddy 混元Hy3 新增） */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center">
+                <div className="text-2xl font-bold text-amber-500">🏅</div>
+                <div className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                  {bestScore !== null ? `${bestScore}%` : '—'}
+                </div>
+                <div className="text-xs text-gray-400">历史最佳</div>
+              </div>
+              <button
+                onClick={() => setPhase('mistakes')}
+                className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center hover:border-red-300 transition-all"
+              >
+                <div className="text-2xl font-bold text-red-500">📕</div>
+                <div className="text-lg font-bold text-gray-800 dark:text-gray-100">{mistakes.length}</div>
+                <div className="text-xs text-gray-400">错题本</div>
+              </button>
             </div>
 
             <Button
@@ -332,6 +398,54 @@ const QuizMode: React.FC = () => {
               返回设置
             </Button>
           </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // 错题本视图（WorkBuddy 混元Hy3 新增）
+  if (phase === 'mistakes') {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <Card className="p-8 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-red-500" />
+              错题本（{mistakes.length}）
+            </h2>
+            {mistakes.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMistakes([])}
+                className="text-red-500 hover:text-red-600"
+              >
+                清空
+              </Button>
+            )}
+          </div>
+          {mistakes.length === 0 ? (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">
+              还没有错题，去练习模式挑战一下吧！
+            </p>
+          ) : (
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+              {mistakes.map((m, i) => (
+                <div key={i} className="p-3 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30">
+                  <p className="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line">{m.question}</p>
+                  {m.latex && (
+                    <div className="mt-2 p-2 bg-white dark:bg-gray-800 rounded">
+                      <MathTex displayMode>{m.latex}</MathTex>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">💡 {m.explanation}</p>
+                </div>
+              ))}
+            </div>
+          )}
+          <Button onClick={() => setPhase('setup')} variant="outline" className="w-full mt-4">
+            返回
+          </Button>
         </Card>
       </div>
     );
